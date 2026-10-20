@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export async function prepareHost(tarball) {
+export async function prepareHost(tarball: string | undefined) {
   if (!tarball) throw new Error("Pass the path to the packed emdash-popcase tarball.");
   const target = await mkdtemp(join(tmpdir(), "emdash-popcase-consumer-"));
   await cp(new URL("../example/", import.meta.url), target, {

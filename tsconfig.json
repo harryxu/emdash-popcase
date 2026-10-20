@@ -1,5 +1,25 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "compilerOptions": { "jsx": "react-jsx", "allowJs": true, "checkJs": false },
-  "include": ["src", "index.d.ts"]
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "allowJs": false,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "noEmit": true,
+    "types": [
+      "astro/client",
+      "node"
+    ]
+  },
+  "include": [
+    "src",
+    "test",
+    "example/astro.config.ts"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules",
+    "example/dist",
+    "example/node_modules"
+  ]
 }

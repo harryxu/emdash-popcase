@@ -1,11 +1,17 @@
 import { definePlugin, getRequestContext } from "emdash";
-import { normalizeOptions } from "./src/options.js";
-import { encodeMarker } from "./src/markers.js";
-import { isCollectionEnabled, readContentTypes, settingsRoute } from "./src/settings.js";
+import { normalizeOptions } from "./options.js";
+import { encodeMarker } from "./markers.js";
+import { isCollectionEnabled, readContentTypes, settingsRoute } from "./settings.js";
+
+import type { PluginDescriptor } from "emdash";
+import type { AstroIntegration } from "astro";
+import type { PopcaseOptions } from "./types.js";
+
+export type { PopcaseOptions, PopcaseConfig } from "./types.js";
 
 const version = "0.1.0";
 
-export function popcase(options = {}) {
+export function popcase(options: PopcaseOptions = {}): PluginDescriptor {
   return {
     id: "popcase",
     version,
@@ -13,11 +19,11 @@ export function popcase(options = {}) {
     entrypoint: "emdash-popcase",
     componentsEntry: "emdash-popcase/astro",
     adminEntry: "emdash-popcase/admin",
-    options: normalizeOptions(options),
+    options: { ...normalizeOptions(options) },
   };
 }
 
-export function createPlugin(options = {}) {
+export function createPlugin(options: PopcaseOptions = {}) {
   const config = normalizeOptions(options);
   return definePlugin({
     id: "popcase",
@@ -44,7 +50,7 @@ export function createPlugin(options = {}) {
   });
 }
 
-export function popcaseIntegration() {
+export function popcaseIntegration(): AstroIntegration {
   return {
     name: "popcase",
     hooks: {

@@ -1,4 +1,4 @@
-import type { PopcaseConfig } from "../../index.js";
+import type { PopcaseConfig } from "../types.js";
 
 export interface ViewerImage {
   src: string;

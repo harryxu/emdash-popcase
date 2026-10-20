@@ -1,32 +1,35 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { parseHTML } from "linkedom";
-import { enhanceHtml } from "../src/server.js";
-import { normalizeOptions } from "../src/options.js";
+import { enhanceHtml } from "../dist/server.js";
+import { normalizeOptions } from "../dist/options.js";
 import { collectGroup } from "../src/client/group.ts";
 
 const options = { base: "https://blog.example/posts/story", config: normalizeOptions() };
 const node = { asset: { _ref: "source", url: "/full.jpg" }, width: 2400, height: 1600, alt: "A diagram", caption: "An explanation" };
 const markup = '<figure class="emdash-image custom" style="margin:0"><img src="/preview.webp" width="600" height="400" alt="A diagram"><figcaption>An explanation</figcaption></figure>';
-const documentOf = (html) => parseHTML(`<html><body>${html}</body></html>`).document;
+const documentOf = (html: string) => parseHTML(`<html><body>${html}</body></html>`).document;
 
 test("SSR adds a keyboard-accessible fallback while retaining figure layout and original dimensions", () => {
   const document = documentOf(enhanceHtml(markup, { ...options, nodes: [node] }));
   const figure = document.querySelector("figure");
+  assert.ok(figure);
   const anchor = figure.querySelector("a");
+  assert.ok(anchor);
   assert.equal(figure.className, "emdash-image custom");
   assert.equal(figure.getAttribute("style"), "margin:0");
   assert.equal(anchor.href, "https://blog.example/full.jpg");
-  assert.equal(anchor.querySelector("img").getAttribute("width"), "600");
+  assert.equal(anchor.querySelector("img")!.getAttribute("width"), "600");
   assert.equal(anchor.getAttribute("aria-haspopup"), null);
-  assert.deepEqual(JSON.parse(anchor.dataset.popcase), { src: "https://blog.example/full.jpg", alt: "A diagram", description: "An explanation", width: 2400, height: 1600 });
+  assert.deepEqual(JSON.parse(anchor.dataset.popcase!), { src: "https://blog.example/full.jpg", alt: "A diagram", description: "An explanation", width: 2400, height: 1600 });
 });
 
 test("separate viewer images do not inherit the preview image's dimensions", () => {
   const linked = markup.replace('<img ', '<a href="/other.png" target="_blank"><img ').replace('><figcaption', '></a><figcaption');
   const document = documentOf(enhanceHtml(linked, { ...options, nodes: [node] }));
   const anchor = document.querySelector("a");
-  const image = JSON.parse(anchor.dataset.popcase);
+  assert.ok(anchor);
+  const image = JSON.parse(anchor.dataset.popcase!);
   assert.equal(image.src, "https://blog.example/other.png");
   assert.equal(image.width, undefined);
   assert.equal(image.height, undefined);
@@ -37,8 +40,8 @@ test("navigation links are excluded without losing their destination or target",
   const html = '<figure class="emdash-image"><a href="/shop" target="_blank"><img src="/preview.jpg"></a></figure>';
   const document = documentOf(enhanceHtml(html, { ...options, nodes: [node] }));
   assert.equal(document.querySelector("[data-popcase]"), null);
-  assert.equal(document.querySelector("a").getAttribute("href"), "/shop");
-  assert.equal(document.querySelector("a").getAttribute("target"), "_blank");
+  assert.equal(document.querySelector("a")!.getAttribute("href"), "/shop");
+  assert.equal(document.querySelector("a")!.getAttribute("target"), "_blank");
 });
 
 test("inline HTML enhances only image destination links and treats captions as text", () => {

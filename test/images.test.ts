@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { imageSource, isImageDestination, safeImageUrl } from "../src/images.js";
-import { normalizeOptions, resolveLabels } from "../src/options.js";
+import { imageSource, isImageDestination, safeImageUrl } from "../dist/images.js";
+import { normalizeOptions, resolveLabels } from "../dist/options.js";
 
 const base = "https://blog.example/posts/story";
 
@@ -15,7 +15,7 @@ test("image destinations preserve navigation for pages, unsafe schemes and ambig
 });
 
 test("local images use public storage URLs while bare IDs remain on the media route", () => {
-  const publicUrl = (key) => `https://cdn.example/${key}`;
+  const publicUrl = (key: string) => `https://cdn.example/${key}`;
   assert.equal(imageSource({ asset: { _ref: "abc", url: "/_emdash/api/media/file/abc.jpg" } }, base, publicUrl), "https://cdn.example/abc.jpg");
   assert.equal(imageSource({ asset: { _ref: "abc" } }, base, publicUrl), "https://blog.example/_emdash/api/media/file/abc");
   assert.equal(imageSource({ asset: { _ref: "abc", url: "https://images.example/original" } }, base), "https://images.example/original");
@@ -27,7 +27,7 @@ test("provider sources are never guessed from their IDs", () => {
 });
 
 test("viewer defaults and translated label overrides are independent", () => {
-  assert.equal("collections" in normalizeOptions({ collections: ["posts"] }), false);
+  assert.equal("collections" in normalizeOptions(Object.assign({ zoom: true }, { collections: ["posts"] })), false);
   assert.equal(normalizeOptions({ zoom: false }).zoom, false);
   assert.equal(normalizeOptions({ zoom: false }).captions, true);
   assert.equal(resolveLabels("zh-CN").Close, "关闭");

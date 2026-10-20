@@ -12,7 +12,7 @@ Install the package alongside EmDash 1.3.1+, Astro 7, React, and React DOM. The 
 pnpm add emdash-popcase
 ```
 
-```js
+```ts
 import react from "@astrojs/react";
 import emdash from "emdash/astro";
 import { popcase, popcaseIntegration } from "emdash-popcase";
@@ -38,7 +38,7 @@ Native plugins install through site dependencies and configuration, rather than 
 
 ## Configuration
 
-```js
+```ts
 popcase({
   zoom: true,
   counter: true,
@@ -94,30 +94,39 @@ Use Node.js 24+ and pnpm 12. The `example/` site is self-contained and uses gene
 
 ```sh
 pnpm install
+pnpm build          # Compile server code and generate declarations
+pnpm build:example  # Build the example site
 pnpm test
 pnpm typecheck
 pnpm dev
 pnpm test:package
 ```
 
-The package ships server JavaScript and type declarations, Astro renderers, a native React admin entry, and client source for compilation by the host. The packed artifact must include `src`; no local source aliases are required by consumers.
+All maintained code uses TypeScript, including server logic, tests, verification scripts, and the example configuration. Astro templates remain `.astro`, and React components use `.tsx`.
 
-`pnpm test:package` packs the package, checks its file list, installs the tarball in a fresh temporary consumer, builds it, and checks image enhancement and default enablement of new content types over HTTP. It removes the temporary consumer afterward. CI runs this verification together with unit tests and type checks; it never publishes.
+`pnpm build` compiles the server entry and middleware from `src/` into `dist/`, generating JavaScript, declarations, and source maps. The package root and middleware exports resolve to those compiled files. Type declarations are generated from the implementation; there is no manually maintained `index.d.ts`.
+
+Astro renderers, the native React admin entry, and browser client source remain separate TypeScript/Astro source entrypoints compiled by the host. The packed artifact must include both `dist` and `src`; no local source aliases are required by consumers. `prepack` builds the server before normal package creation, and `pnpm dev` builds it before starting the example. Run `pnpm build` again after server-side source changes while a linked host is running.
+
+`pnpm test` builds the server and uses Node.js 24's TypeScript support to run the test sources against compiled server output. `pnpm typecheck` strictly compiles the server and checks TypeScript, React, Astro components, tests, and verification scripts with Astro's checker.
+
+`pnpm test:package` packs the package, checks its file list, installs the tarball in a fresh temporary consumer, verifies its public TypeScript declarations, builds it, and checks image enhancement and default enablement of new content types over HTTP. It removes the temporary consumer afterward. CI runs this verification together with unit tests and type checks; it never publishes.
 
 The example runs at `/` and supports `?case=single`, `?case=new-type`, `?case=excluded`, `?case=nojs`, `?case=fail`, and `?lang=zh`. No-JavaScript and failed-module scenarios use a test-only content security policy; the failed-module scenario is intended for a production build.
 
 For a retained consumer to inspect manually:
 
 ```sh
+pnpm build
 npm pack --ignore-scripts --pack-destination /tmp
-node test/prepare-host.mjs /tmp/emdash-popcase-0.1.0.tgz
+node test/prepare-host.ts /tmp/emdash-popcase-0.1.0.tgz
 ```
 
 Install dependencies and run `pnpm dev` or `pnpm build` in the printed directory.
 
 ## Using a local checkout
 
-Before the first npm release, a sibling site can use `"emdash-popcase": "link:../emdash-popcase"` in its dependencies. Run `pnpm install` in this plugin repository first, then in the site. After publishing, replace the link with a registry version, for example `pnpm add emdash-popcase@0.1.0`.
+Before the first npm release, a sibling site can use `"emdash-popcase": "link:../emdash-popcase"` in its dependencies. Run `pnpm install` and `pnpm build` in this plugin repository first, then install dependencies in the site. After publishing, replace the link with a registry version, for example `pnpm add emdash-popcase@0.1.0`.
 
 ## Manual release
 

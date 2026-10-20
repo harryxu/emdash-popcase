@@ -1,4 +1,6 @@
-export function normalizeOptions(options = {}) {
+import type { PopcaseConfig, PopcaseOptions } from "./types.js";
+
+export function normalizeOptions(options: PopcaseOptions = {}): PopcaseConfig {
   return {
     zoom: options.zoom !== false,
     counter: options.counter !== false,
@@ -8,7 +10,7 @@ export function normalizeOptions(options = {}) {
   };
 }
 
-const chinese = {
+const chinese: Record<string, string> = {
   "Open image": "放大查看图片",
   "Close": "关闭",
   "Next": "下一张",
@@ -27,6 +29,6 @@ const chinese = {
   "of": "/",
 };
 
-export function resolveLabels(language = "en", overrides = {}) {
+export function resolveLabels(language = "en", overrides: Record<string, string> = {}): Record<string, string> {
   return { ...(language.toLowerCase().startsWith("zh") ? chinese : {}), ...overrides };
 }

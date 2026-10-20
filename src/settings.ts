@@ -1,17 +1,18 @@
+import type { PluginRoute, RouteContext, SettingsAccess } from "emdash";
+import type { ContentTypes, SettingsResponse } from "./types.js";
+
 const settingKey = "contentTypes";
 
-/** @typedef {{ mode: "all" } | { mode: "selected", collections: string[] }} ContentTypes */
-
-/** @returns {ContentTypes | null} */
-export function parseContentTypes(value) {
+export function parseContentTypes(value: unknown): ContentTypes | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  if (!("mode" in value)) return null;
   if (value.mode === "all") return { mode: "all" };
-  if (value.mode !== "selected" || !Array.isArray(value.collections) ||
+  if (value.mode !== "selected" || !("collections" in value) || !Array.isArray(value.collections) ||
       !value.collections.every((slug) => typeof slug === "string" && slug.length > 0)) return null;
   return { mode: "selected", collections: [...new Set(value.collections)] };
 }
 
-export async function readContentTypes(settings) {
+export async function readContentTypes(settings: Pick<SettingsAccess, "get">): Promise<ContentTypes> {
   const value = await settings.get(settingKey);
   if (value == null) return { mode: "all" };
   const parsed = parseContentTypes(value);
@@ -19,14 +20,15 @@ export async function readContentTypes(settings) {
   return parsed;
 }
 
-export function isCollectionEnabled(settings, collection) {
+export function isCollectionEnabled(settings: ContentTypes, collection: string): boolean {
   return settings.mode === "all" || settings.collections.includes(collection);
 }
 
 export const settingsRoute = {
   methods: ["GET", "POST"],
   permission: "plugins:manage",
-  handler: async (ctx) => {
+  handler: async (ctx: Pick<RouteContext, "schema" | "settings" | "request" | "input">): Promise<SettingsResponse> => {
+    if (!ctx.schema) throw new Error("Popcase requires schema:read access.");
     const collections = (await ctx.schema.listCollections())
       .map(({ slug, label }) => ({ slug, label }))
       .sort((a, b) => a.label.localeCompare(b.label) || a.slug.localeCompare(b.slug));
@@ -42,4 +44,4 @@ export const settingsRoute = {
     }
     return { ok: true, settings: await readContentTypes(ctx.settings), collections };
   },
-};
+} satisfies PluginRoute;

@@ -1,8 +1,10 @@
+import type { MediaNode } from "./types.js";
+
 const imageExtension = /\.(?:avif|gif|jpe?g|png|webp|svg|bmp|ico)$/i;
 const mediaRoute = "/_emdash/api/media/file/";
 const safeKey = /^[A-Za-z0-9._-]+$/;
 
-export function safeImageUrl(value, base) {
+export function safeImageUrl(value: unknown, base: string): string | undefined {
   if (typeof value !== "string" || !value.trim() || value.trim().startsWith("#")) return undefined;
   try {
     const url = new URL(value, base);
@@ -13,7 +15,7 @@ export function safeImageUrl(value, base) {
   }
 }
 
-export function isImageDestination(value, base, knownSources = []) {
+export function isImageDestination(value: unknown, base: string, knownSources: string[] = []): boolean {
   const href = safeImageUrl(value, base);
   if (!href) return false;
   if (knownSources.some((source) => safeImageUrl(source, base) === href)) return true;
@@ -24,11 +26,11 @@ export function isImageDestination(value, base, knownSources = []) {
   return false;
 }
 
-export function imageSource(node, base, publicUrl) {
+export function imageSource(node: MediaNode | undefined, base: string, publicUrl?: (key: string) => string): string | undefined {
   const asset = node?.asset;
   if (!asset) return undefined;
   if (asset.provider && asset.provider !== "local") return safeImageUrl(asset.url ?? asset.src, base);
-  const storageKey = asset.meta?.storageKey ?? node.meta?.storageKey;
+  const storageKey = asset.meta?.storageKey ?? node?.meta?.storageKey;
   const url = asset.url ?? asset.src;
   const id = asset._ref ?? asset.id;
   if (!url && typeof storageKey === "string" && safeKey.test(storageKey)) {
@@ -41,6 +43,6 @@ export function imageSource(node, base, publicUrl) {
   return safeImageUrl(url ?? (id ? `${mediaRoute}${encodeURIComponent(id)}` : undefined), base);
 }
 
-export function positiveDimension(value) {
+export function positiveDimension(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : undefined;
 }

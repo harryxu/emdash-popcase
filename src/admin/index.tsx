@@ -3,12 +3,7 @@ import { useLingui } from "@lingui/react";
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
 import { useCallback, useEffect, useState, type SyntheticEvent } from "react";
 
-type ContentTypes = { mode: "all" } | { mode: "selected"; collections: string[] };
-interface SettingsResponse {
-  ok: boolean;
-  settings: ContentTypes;
-  collections: { slug: string; label: string }[];
-}
+import type { ContentTypes, SettingsResponse } from "../types.js";
 
 const endpoint = "/_emdash/api/plugins/popcase/settings";
 
@@ -16,7 +11,7 @@ export function SettingsPage() {
   const { i18n } = useLingui();
   const zh = i18n.locale.toLowerCase().startsWith("zh");
   const text = (en: string, cn: string) => zh ? cn : en;
-  const [data, setData] = useState<SettingsResponse>();
+  const [data, setData] = useState<Extract<SettingsResponse, { ok: true }>>();
   const [draft, setDraft] = useState<ContentTypes>({ mode: "all" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

@@ -2,7 +2,7 @@ import { enhanceResponse } from "./server.js";
 
 const cookieKey = Symbol.for("astro.cookies");
 
-export async function transformResponse(response, base) {
+export async function transformResponse(response: Response, base: string): Promise<Response> {
   if (response.status !== 200 || !response.body || response.headers.has("content-encoding") ||
       response.headers.has("content-range") || !response.headers.get("content-type")?.includes("text/html")) return response;
   const html = await response.text();

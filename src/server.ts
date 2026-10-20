@@ -3,20 +3,29 @@ import { imageSource, isImageDestination, positiveDimension, safeImageUrl } from
 import { resolveLabels } from "./options.js";
 import { decodeMarker } from "./markers.js";
 
-export function enhanceHtml(html, { nodes = [], base, publicUrl, config, inline = false, knownSources = [] }) {
+import type { BlockMetadata, ImageMetadata, PopcaseConfig } from "./types.js";
+
+interface EnhanceOptions extends BlockMetadata {
+  base: string;
+  publicUrl?: (key: string) => string;
+  config: PopcaseConfig;
+  knownSources?: string[];
+}
+
+export function enhanceHtml(html: string, { nodes = [], base, publicUrl, config, inline = false, knownSources = [] }: EnhanceOptions): string {
   const { document } = parseHTML(`<html><body>${html}</body></html>`);
   const sources = nodes.map((node) => node?.source ?? imageSource(node, base, publicUrl));
   const figures = Array.from(document.querySelectorAll("figure.emdash-image, figure.emdash-gallery-item"));
-  const entries = inline
-    ? Array.from(document.querySelectorAll("a[href] img")).map((img) => ({ img }))
-    : figures.map((figure, index) => ({ img: figure.querySelector("img"), node: nodes[index], index }));
+  const entries: { img: HTMLImageElement | null; node?: ImageMetadata; index?: number }[] = inline
+    ? Array.from(document.querySelectorAll<HTMLImageElement>("a[href] img")).map((img) => ({ img }))
+    : figures.map((figure, index) => ({ img: figure.querySelector<HTMLImageElement>("img"), node: nodes[index], index }));
 
   for (const { img, node, index } of entries) {
     if (!img) continue;
     const link = img.closest("a");
-    const source = inline ? undefined : sources[index];
+    const source = index === undefined ? undefined : sources[index];
     const href = link?.getAttribute("href");
-    if (href && !isImageDestination(href, base, [...knownSources, ...sources].filter(Boolean))) continue;
+    if (href && !isImageDestination(href, base, [...knownSources, ...sources].filter((value): value is string => Boolean(value)))) continue;
     const src = safeImageUrl(href ?? source, base);
     if (!src) continue;
     const anchor = link ?? document.createElement("a");
@@ -40,23 +49,23 @@ export function enhanceHtml(html, { nodes = [], base, publicUrl, config, inline 
   return document.body.innerHTML;
 }
 
-export function enhanceResponse(html, base) {
-  let config;
+export function enhanceResponse(html: string, base: string): string {
+  let config: PopcaseConfig | undefined;
   const content = html.replace(/<template data-popcase-page>([^<]*)<\/template>/g, (_, encoded) => {
-    try { config = decodeMarker(encoded); } catch { config = undefined; }
+    try { config = decodeMarker<PopcaseConfig>(encoded); } catch { config = undefined; }
     return "";
   });
   const blocks = /<!--popcase:([^>]*)-->([\s\S]*?)<!--\/popcase-->/g;
-  const knownSources = [];
+  const knownSources: string[] = [];
   for (const match of content.matchAll(blocks)) {
     try {
-      knownSources.push(...(decodeMarker(match[1]).nodes ?? []).map((node) => node.source).filter(Boolean));
+      knownSources.push(...(decodeMarker<BlockMetadata>(match[1]).nodes ?? []).map((node) => node.source).filter((value): value is string => Boolean(value)));
     } catch { /* Invalid markers leave the original block unchanged. */ }
   }
   return content.replace(blocks, (_, encoded, markup) => {
     if (!config) return markup;
     try {
-      const metadata = decodeMarker(encoded);
+      const metadata = decodeMarker<BlockMetadata>(encoded);
       return enhanceHtml(markup, { ...metadata, base, config, knownSources });
     } catch { return markup; }
   });

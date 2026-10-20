@@ -1,38 +1,44 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { runWithContext } from "emdash/request-context";
-import { createPlugin, popcase } from "../index.js";
-import { enhanceResponse } from "../src/server.js";
-import { encodeMarker } from "../src/markers.js";
+import { contribution } from "./helpers.ts";
+import type { SchemaAccess, SettingsAccess } from "emdash";
+import type { SettingsResponse } from "../src/types.ts";
+import { settingsRoute } from "../dist/settings.js";
+import { createPlugin, popcase } from "../dist/index.js";
+import { enhanceResponse } from "../dist/server.js";
+import { encodeMarker } from "../dist/markers.js";
 
 function fixture() {
-  const values = new Map();
+  const values = new Map<string, unknown>();
   const collections = [
     { slug: "posts", label: "Posts" }, { slug: "pages", label: "Pages" },
     { slug: "internal", label: "Internal", hidden: true, routable: false },
   ];
   const settings = {
-    get: async (key) => structuredClone(values.get(key) ?? null),
-    set: async (key, value) => { values.set(key, structuredClone(value)); },
+    get: async <T>(key: string): Promise<T | null> => structuredClone(values.get(key) ?? null) as T | null,
+    set: async (key: string, value: unknown) => { values.set(key, structuredClone(value)); },
   };
   const plugin = createPlugin();
-  const request = (method, input) => plugin.routes.settings.handler({
+  const request = (method: string, input?: unknown): Promise<SettingsResponse> => settingsRoute.handler({
     request: new Request("https://example.org/_emdash/api/plugins/popcase/settings", { method }),
-    input, settings, schema: { listCollections: async () => collections },
+    input, settings: settings as SettingsAccess, schema: { listCollections: async () => collections } as unknown as SchemaAccess,
   });
-  const render = async (collection, editMode = false, kind = "content") => {
-    const fragment = await runWithContext({ editMode }, () => plugin.hooks["page:fragments"].handler({
-      page: { kind, content: { collection } },
-    }, { settings }));
+  const read = async () => {
+    const result = await request("GET");
+    assert.ok(result.ok);
+    return result;
+  };
+  const render = async (collection: string, editMode = false, kind: "content" | "custom" = "content") => {
+    const fragment = await contribution({ kind, content: { collection } }, { editMode }, plugin, settings);
     const marker = encodeMarker({ nodes: [{ source: "https://example.org/full.jpg" }], inline: false });
     return enhanceResponse(`${fragment?.html ?? ""}<!--popcase:${marker}--><figure class="emdash-image"><img src="/preview.jpg" alt="Preview"></figure><!--/popcase-->`, "https://example.org/story");
   };
-  return { request, render, collections, values };
+  return { request, read, render, collections, values };
 }
 
 test("settings default to all types, including future, hidden and non-routable types", async () => {
-  const { request, render, values } = fixture();
-  const result = await request("GET");
+  const { read, render, values } = fixture();
+  const result = await read();
   assert.deepEqual(result.settings, { mode: "all" });
   assert.deepEqual(result.collections.map(({ slug }) => slug), ["internal", "pages", "posts"]);
   assert.equal(values.size, 0);
@@ -42,10 +48,10 @@ test("settings default to all types, including future, hidden and non-routable t
 });
 
 test("saved selections change existing page output, persist on reload, and exclude newly created types", async () => {
-  const { request, render, collections } = fixture();
+  const { request, read, render, collections } = fixture();
   assert.match(await render("pages"), /data-popcase=/);
   assert.equal((await request("POST", { mode: "selected", collections: ["posts", "posts"] })).ok, true);
-  assert.deepEqual((await request("GET")).settings, { mode: "selected", collections: ["posts"] });
+  assert.deepEqual((await read()).settings, { mode: "selected", collections: ["posts"] });
   assert.match(await render("posts"), /data-popcase=/);
   assert.doesNotMatch(await render("pages"), /data-popcase=/);
   collections.push({ slug: "notes", label: "Notes" });
@@ -69,13 +75,13 @@ test("empty selection disables everything and all mode discards any saved whitel
 });
 
 test("invalid submissions never replace a saved selection", async () => {
-  const { request } = fixture();
+  const { request, read } = fixture();
   await request("POST", { mode: "selected", collections: ["pages"] });
   for (const input of [null, [], {}, { mode: true }, { mode: "selected" },
     { mode: "selected", collections: "posts" }, { mode: "selected", collections: [1] },
     { mode: "selected", collections: [""] }, { mode: "selected", collections: ["unknown"] }]) {
     assert.equal((await request("POST", input)).ok, false);
-    assert.deepEqual((await request("GET")).settings, { mode: "selected", collections: ["pages"] });
+    assert.deepEqual((await read()).settings, { mode: "selected", collections: ["pages"] });
   }
 });
 
@@ -83,10 +89,10 @@ test("settings reads and writes report storage failures rather than claiming suc
   const { values, render } = fixture();
   values.set("contentTypes", { mode: "broken" });
   await assert.rejects(render("posts"), /Invalid Popcase/);
-  await assert.rejects(createPlugin().routes.settings.handler({
+  await assert.rejects(settingsRoute.handler({
     request: new Request("https://example.org/settings", { method: "POST" }),
-    input: { mode: "all" }, schema: { listCollections: async () => [] },
-    settings: { set: async () => { throw new Error("Storage unavailable"); } },
+    input: { mode: "all" }, schema: { listCollections: async () => [] } as unknown as SchemaAccess,
+    settings: { set: async () => { throw new Error("Storage unavailable"); } } as unknown as SettingsAccess,
   }), /Storage unavailable/);
 });
 
@@ -94,7 +100,7 @@ test("native descriptor pairs its admin entry with a private manager-only settin
   const plugin = createPlugin();
   assert.equal(popcase().adminEntry, plugin.admin.entry);
   assert.equal(plugin.admin.entry, "emdash-popcase/admin");
-  assert.equal(plugin.admin.pages[0].path, "/settings");
+  assert.equal(plugin.admin.pages?.[0]?.path, "/settings");
   assert.equal(plugin.routes.settings.permission, "plugins:manage");
   assert.notEqual(plugin.routes.settings.public, true);
   assert.deepEqual(plugin.routes.settings.methods, ["GET", "POST"]);
