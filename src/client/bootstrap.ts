@@ -26,6 +26,7 @@ document.addEventListener("click", async (event) => {
   anchor.setAttribute("aria-busy", "true");
   anchor.focus();
   try {
+    if (import.meta.env.DEV) await import("@vitejs/plugin-react/preamble");
     viewer = await import("./viewer");
     await viewer.prepareViewer();
     if (request !== sequence || !anchor.isConnected) return;
