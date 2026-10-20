@@ -1,4 +1,5 @@
 .popcase-dialog {
+  color-scheme: dark;
   position: fixed;
   inset: 0;
   width: 100%;
@@ -15,15 +16,15 @@
 .popcase-dialog::backdrop { background: transparent; }
 
 .popcase-viewer {
-  --yarl__color_backdrop: var(--color-bg, light-dark(#faf9f7, #0f0f0f));
-  --yarl__color_button: light-dark(#272727, #eee);
-  --yarl__color_button_active: light-dark(#000, #fff);
-  --yarl__color_button_disabled: light-dark(#999, #666);
+  --yarl__color_backdrop: rgb(15 15 15 / 95%);
+  --yarl__color_button: #eee;
+  --yarl__color_button_active: #fff;
+  --yarl__color_button_disabled: #888;
   --yarl__button_filter: none;
   --yarl__button_background_color: transparent;
-  --yarl__slide_captions_container_background: light-dark(rgb(250 249 247 / 92%), rgb(15 15 15 / 92%));
-  --yarl__slide_description_color: light-dark(#333, #ddd);
-  --yarl__counter_color: light-dark(#272727, #eee);
+  --yarl__slide_captions_container_background: rgb(15 15 15 / 92%);
+  --yarl__slide_description_color: #ddd;
+  --yarl__counter_color: #eee;
   --yarl__counter_filter: none;
   font-family: var(--font-body, system-ui, sans-serif);
 }
