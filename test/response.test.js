@@ -29,9 +29,13 @@ test("native configuration uses real page identity and stays isolated across con
   assert.equal(values[4], null);
   assert.ok(decodeURIComponent(values[5].html).includes('"zoom":false'));
   assert.equal(popcase().format, "native");
+  assert.equal(popcase().id, "popcase");
+  assert.equal(popcase().entrypoint, "emdash-popcase");
+  assert.equal(popcase().componentsEntry, "emdash-popcase/astro");
   const middlewares = [];
   popcaseIntegration().hooks["astro:config:setup"]({ addMiddleware: (entry) => middlewares.push(entry) });
   assert.equal(middlewares[0].order, "pre");
+  assert.equal(middlewares[0].entrypoint, "emdash-popcase/middleware");
 });
 
 test("response enhancement is independent of whether page metadata precedes or follows image rendering", () => {

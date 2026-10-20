@@ -1,0 +1,13 @@
+packages:
+  - example
+
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: false
+
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - emdash
+  - "@emdash-cms/*"
+blockExoticSubdeps: true

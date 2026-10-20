@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="2000" viewBox="0 0 1200 800">
+  <rect width="1200" height="800" fill="#45523b"/>
+  <g stroke="#f5e8c8" stroke-width="3" fill="none">
+    <circle cx="600" cy="370" r="240"/><circle cx="600" cy="370" r="160"/>
+    <path d="M180 370h840M600 90v560M360 130l480 480M840 130L360 610"/>
+  </g>
+  <text x="600" y="730" fill="#f5e8c8" text-anchor="middle" font-family="monospace" font-size="30">POPCASE / DETAIL / 3000 × 2000</text>
+</svg>

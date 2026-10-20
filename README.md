@@ -1,4 +1,4 @@
-# popcase
+# emdash-popcase
 
 A native EmDash plugin for viewing body images with [Yet Another React Lightbox](https://yet-another-react-lightbox.com/).
 
@@ -8,10 +8,14 @@ Existing image and gallery blocks gain click-to-open viewing without resaving en
 
 Install the package alongside EmDash 1.3.1+, Astro 7, React, and React DOM. The host must have `@astrojs/react` configured so it can compile the packaged React client.
 
+```sh
+pnpm add emdash-popcase
+```
+
 ```js
 import react from "@astrojs/react";
 import emdash from "emdash/astro";
-import { popcase, popcaseIntegration } from "popcase";
+import { popcase, popcaseIntegration } from "emdash-popcase";
 import { defineConfig } from "astro/config";
 
 export default defineConfig({
@@ -74,18 +78,48 @@ The plugin preserves core image and gallery rendering and adds fallback links ar
 
 ## Development
 
-In this repository:
+Use Node.js 24+ and pnpm 12. The `example/` site is self-contained and uses generated diagram fixtures, its own SQLite database, and its own uploads directory. It does not access another site's content or credentials.
 
 ```sh
 pnpm install
-pnpm --filter popcase test
-pnpm --filter popcase typecheck
+pnpm test
 pnpm typecheck
-pnpm build
-cd plugins/popcase
-npm pack --ignore-scripts --pack-destination /tmp
+pnpm dev
+pnpm test:package
 ```
 
 The package ships server JavaScript and type declarations, Astro renderers, and client source for compilation by the host. The packed artifact must include `src`; no local source aliases are required by consumers.
 
-For an isolated packed-package smoke test, run `node plugins/popcase/test/prepare-host.mjs /tmp/popcase-0.1.0.tgz` from the repository root. It creates a temporary consumer with a cloned dependency graph, a backup of the development database, and a verification page at `/popcase-check`. It does not change the host's content or add a route to the real site. Build and run the returned directory with Node and Astro. The page supports `?case=single`, `?case=excluded`, `?case=nojs`, `?case=fail`, and `?lang=zh`; no-JavaScript and failed-module scenarios use a test-only content security policy.
+`pnpm test:package` packs the package, checks its file list, installs the tarball in a fresh temporary consumer, builds it, and checks image enhancement and collection exclusions over HTTP. It removes the temporary consumer afterward. CI runs this verification together with unit tests and type checks; it never publishes.
+
+The example runs at `/` and supports `?case=single`, `?case=excluded`, `?case=nojs`, `?case=fail`, and `?lang=zh`. No-JavaScript and failed-module scenarios use a test-only content security policy; the failed-module scenario is intended for a production build.
+
+For a retained consumer to inspect manually:
+
+```sh
+npm pack --ignore-scripts --pack-destination /tmp
+node test/prepare-host.mjs /tmp/emdash-popcase-0.1.0.tgz
+```
+
+Install dependencies and run `pnpm dev` or `pnpm build` in the printed directory.
+
+## Using a local checkout
+
+Before the first npm release, a sibling site can use `"emdash-popcase": "link:../emdash-popcase"` in its dependencies. Run `pnpm install` in this plugin repository first, then in the site. After publishing, replace the link with a registry version, for example `pnpm add emdash-popcase@0.1.0`.
+
+## Manual release
+
+The npm package name is `emdash-popcase`; the EmDash plugin ID remains `popcase`. This is a native plugin distributed through npm, not the sandboxed EmDash registry.
+
+Before the first publication, set `repository`, `homepage`, and `bugs` in `package.json` to the real public repository, confirm the package version, and log in to your npm account. No remote or publisher account is configured by this repository.
+
+```sh
+pnpm install --frozen-lockfile
+pnpm test
+pnpm typecheck
+pnpm test:package
+npm pack --dry-run
+npm publish --access public
+```
+
+`npm publish` also runs the verification suite through `prepublishOnly`. Commit and tag the verified release yourself before pushing. Source code is licensed under MIT; dependencies retain their own licenses.

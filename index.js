@@ -9,8 +9,8 @@ export function popcase(options = {}) {
     id: "popcase",
     version,
     format: "native",
-    entrypoint: "popcase",
-    componentsEntry: "popcase/astro",
+    entrypoint: "emdash-popcase",
+    componentsEntry: "emdash-popcase/astro",
     options: normalizeOptions(options),
   };
 }
@@ -43,7 +43,7 @@ export function popcaseIntegration() {
     name: "popcase",
     hooks: {
       "astro:config:setup": ({ addMiddleware }) => {
-        addMiddleware({ entrypoint: "popcase/middleware", order: "pre" });
+        addMiddleware({ entrypoint: "emdash-popcase/middleware", order: "pre" });
       },
     },
   };

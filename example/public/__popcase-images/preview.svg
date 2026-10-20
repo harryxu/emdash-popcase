@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="320" viewBox="0 0 1200 800">
+  <rect width="1200" height="800" fill="#6b4d3e"/>
+  <g stroke="#f5e8c8" stroke-width="3" fill="none">
+    <circle cx="600" cy="370" r="240"/>
+    <path d="M180 370h840M600 90v560"/>
+  </g>
+  <text x="600" y="730" fill="#f5e8c8" text-anchor="middle" font-family="monospace" font-size="30">POPCASE / PREVIEW / 480 × 320</text>
+</svg>

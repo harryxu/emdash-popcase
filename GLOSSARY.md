@@ -1,0 +1,33 @@
+# EmDash Image Viewing
+
+Vocabulary for viewing images embedded in published content.
+
+## Language
+
+**Body image**:
+An image embedded in the main content of a post or content page. Cover images, listing thumbnails, and author avatars are separate from body images.
+_Avoid_: Page image, article asset
+
+**Image viewer**:
+An overlay for viewing an enlarged body image without leaving the current content page.
+_Avoid_: Album manager, media library
+
+**Viewing group**:
+The ordered body images available for navigation in one image viewer session. Each post or content page has one group, including images inside gallery blocks and excluding images whose links lead to ordinary navigation destinations or destinations not confirmed to be image resources.
+_Avoid_: Album, gallery block
+
+**Gallery block**:
+A collection of images arranged together within the body of a post or content page. Its images belong to the same viewing group as other eligible images in that body.
+_Avoid_: Viewing group, independent album
+
+**Image caption**:
+The reader-facing explanation attached to an image at its placement in the content. It is distinct from alternative text, which describes the image for accessibility.
+_Avoid_: Alt text
+
+**Preview image**:
+The image shown at a placement in the content body before the image viewer opens. It can represent the same source as the viewer image or be a separately prepared image.
+_Avoid_: Original image, thumbnail asset
+
+**Viewer image**:
+The image shown after a reader opens a body image in the image viewer. It is the body image's source unless the author links that placement to another confirmed image resource.
+_Avoid_: Original image, full-size master
