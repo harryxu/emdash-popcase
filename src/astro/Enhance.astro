@@ -1,0 +1,38 @@
+---
+import { encodeMarker } from "../markers.js";
+import { getRequestContext } from "emdash";
+import { imageSource } from "../images.js";
+import type { MediaNode } from "../types";
+
+interface Props { nodes?: MediaNode[]; inline?: boolean }
+
+const { nodes = [], inline = false } = Astro.props;
+const html = await Astro.slots.render("default");
+const metadata = {
+  inline,
+  nodes: nodes.map((node) => ({
+    source: imageSource(node, Astro.url.href, Astro.locals.emdash?.getPublicMediaUrl),
+    width: node?.width ?? node?.asset?.width,
+    height: node?.height ?? node?.asset?.height,
+    alt: node?.alt ?? node?.asset?.alt,
+    caption: node?.caption,
+  })),
+};
+const output = getRequestContext()?.editMode ? html
+  : `<!--popcase:${encodeMarker(metadata)}-->${html}<!--/popcase-->`;
+---
+
+<Fragment set:html={output} />
+
+<script>
+  import "../client/bootstrap";
+</script>
+
+<style is:global>
+  a[data-popcase] { cursor: zoom-in; }
+  a[data-popcase][aria-busy="true"] { cursor: progress; }
+  a[data-popcase]:focus-visible {
+    outline: 2px solid var(--color-brand, currentColor);
+    outline-offset: 4px;
+  }
+</style>

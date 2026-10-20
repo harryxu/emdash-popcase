@@ -1,0 +1,8 @@
+---
+import { Gallery } from "emdash/ui";
+import Enhance from "./Enhance.astro";
+const { node, ...rest } = Astro.props;
+const images = Array.isArray(node?.images) ? node.images.filter((image: Record<string, unknown> | null) =>
+  image && typeof image === "object" && image.asset && typeof image.asset === "object") : [];
+---
+<Enhance nodes={images}><Gallery node={node} {...rest} /></Enhance>

@@ -1,0 +1,6 @@
+---
+import { HtmlBlock } from "emdash/ui";
+import Enhance from "./Enhance.astro";
+const { node } = Astro.props;
+---
+{node?.isolated ? <HtmlBlock node={node} /> : <Enhance inline><HtmlBlock node={node} /></Enhance>}

@@ -1,0 +1,63 @@
+---
+import { EmDashHead, PortableText } from "emdash/ui";
+import { createPublicPageContext } from "emdash/page";
+import { readdir } from "node:fs/promises";
+
+const scenario = Astro.url.searchParams.get("case") ?? "all";
+const language = Astro.url.searchParams.get("lang") ?? "en";
+const url = (name: string) => new URL(`/__popcase-images/${name}.svg`, Astro.url).href;
+const image = (key: string, name = "diagram", caption = "A diagram caption") => ({
+  _type: "image", _key: key, asset: { _ref: key, url: url(name) },
+  alt: key, caption, width: name === "detail" ? 3000 : 2400, height: name === "detail" ? 2000 : 1600,
+});
+const content = scenario === "single" || scenario === "nojs" || scenario === "fail"
+  ? [image("Single diagram")]
+  : [
+    image("First diagram"),
+    { ...image("Separate preview", "preview", "A different viewer source"), width: 480, height: 320, link: { href: url("detail") } },
+    { _type: "gallery", _key: "gallery", columns: 2, images: [image("Gallery first"), image("Gallery second", "detail")] },
+    { _type: "columns", _key: "columns", columns: [
+      { _type: "column", _key: "col-a", content: [image("Column diagram", "detail")] },
+      { _type: "column", _key: "col-b", content: [{ _type: "htmlBlock", _key: "inline", isolated: false,
+        html: `<figure><a href="${url("detail")}"><img src="${url("preview")}" alt="Inline diagram" width="480" height="320"></a><figcaption>Inline explanation</figcaption></figure>` }] },
+    ] },
+    { ...image("Navigation image"), link: { href: "/posts" } },
+    { ...image("Ambiguous destination"), link: { href: "/render?id=unknown" } },
+    image("Repeated diagram"),
+    { ...image("Unavailable image"), link: { href: "/__popcase-images/missing.jpg" } },
+  ];
+
+if (scenario === "nojs") Astro.response.headers.set("Content-Security-Policy", "script-src 'none'");
+if (scenario === "fail") {
+  const files = await readdir("dist/client/_astro").catch(() => []);
+  const scripts = files.filter((name) => name.endsWith(".js") && !/^(viewer|react-dom|jsx-runtime|client)\./.test(name));
+  Astro.response.headers.set("Content-Security-Policy", `script-src ${scripts.map((name) => new URL(`/_astro/${name}`, Astro.url).href).join(" ") || "'none'"}`);
+}
+
+const page = createPublicPageContext({ Astro, kind: "content", content: {
+  collection: scenario === "excluded" ? "unlisted" : "pages", id: "popcase-verification", slug: "popcase-verification",
+} });
+---
+<!doctype html>
+<html lang={language}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Popcase verification</title>
+    <EmDashHead page={page} />
+  </head>
+  <body>
+    <main>
+      <h1>Popcase verification</h1>
+      <p>Scenario: {scenario}. Language: {language}.</p>
+      <PortableText value={content} />
+      <a href="/posts">Continue reading</a>
+    </main>
+  </body>
+</html>
+<style is:global>
+  :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+  body { margin: 0; background: light-dark(#faf9f7, #141414); color: light-dark(#222, #eee); }
+  main { max-width: 840px; margin: 3rem auto; padding: 0 1.5rem; }
+  figure img { max-width: 100%; height: auto; }
+</style>
