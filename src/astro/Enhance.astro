@@ -29,7 +29,7 @@ const output = getRequestContext()?.editMode ? html
 </script>
 
 <style is:global>
-  a[data-popcase] { cursor: zoom-in; }
+  a[data-popcase] { cursor: pointer; }
   a[data-popcase][aria-busy="true"] { cursor: progress; }
   a[data-popcase]:focus-visible {
     outline: 2px solid var(--color-brand, currentColor);
