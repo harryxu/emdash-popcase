@@ -10,6 +10,7 @@
   "exports": {
     ".": { "types": "./index.d.ts", "import": "./index.js" },
     "./astro": "./src/astro/index.ts",
+    "./admin": "./src/admin/index.tsx",
     "./middleware": "./src/middleware.js"
   },
   "files": ["index.js", "index.d.ts", "src", "README.md", "LICENSE"],
@@ -23,6 +24,8 @@
     "prepublishOnly": "pnpm test && pnpm typecheck && pnpm test:package"
   },
   "dependencies": {
+    "@cloudflare/kumo": "^2.6.0",
+    "@lingui/react": "^5.9.5",
     "linkedom": "^0.18.13",
     "yet-another-react-lightbox": "^3.32.2"
   },

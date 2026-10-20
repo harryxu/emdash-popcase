@@ -9,14 +9,14 @@ import { transformResponse } from "../src/response.js";
 const base = "https://blog.example/posts/story";
 const plugin = createPlugin();
 const page = (collection = "posts") => ({ kind: "content", content: { collection } });
-const contribution = (p, context = { editMode: false }, instance = plugin) =>
-  runWithContext(context, () => instance.hooks["page:fragments"].handler({ page: p }, {}));
+const contribution = (p, context = { editMode: false }, instance = plugin, settings = { get: async () => null }) =>
+  runWithContext(context, () => instance.hooks["page:fragments"].handler({ page: p }, { settings }));
 const block = (markup, nodes = [], inline = false) => `<!--popcase:${encodeMarker({ nodes, inline })}-->${markup}<!--/popcase-->`;
 const markup = '<figure class="emdash-image"><img src="/preview.jpg" alt="A test diagram"></figure>';
 const source = { source: "https://blog.example/full.jpg", width: 2400, height: 1600 };
 
 test("native configuration uses real page identity and stays isolated across concurrent contexts", async () => {
-  const instance = createPlugin({ collections: ["notes"], zoom: false });
+  const instance = createPlugin({ zoom: false });
   const values = await Promise.all([
     contribution(page()), contribution(page("pages")), contribution(page("notes")),
     contribution(page(), { editMode: true }), contribution({ kind: "custom" }),
@@ -24,7 +24,7 @@ test("native configuration uses real page identity and stays isolated across con
   ]);
   assert.ok(values[0]?.html.includes("data-popcase-page"));
   assert.ok(values[1]);
-  assert.equal(values[2], null);
+  assert.ok(values[2]);
   assert.equal(values[3], null);
   assert.equal(values[4], null);
   assert.ok(decodeURIComponent(values[5].html).includes('"zoom":false'));
@@ -38,8 +38,8 @@ test("native configuration uses real page identity and stays isolated across con
   assert.equal(middlewares[0].entrypoint, "emdash-popcase/middleware");
 });
 
-test("response enhancement is independent of whether page metadata precedes or follows image rendering", () => {
-  const pageHtml = contribution(page()).html;
+test("response enhancement is independent of whether page metadata precedes or follows image rendering", async () => {
+  const pageHtml = (await contribution(page())).html;
   const body = block(markup, [source]);
   const before = enhanceResponse(pageHtml + body, base);
   const after = enhanceResponse(body + pageHtml, base);
@@ -54,15 +54,15 @@ test("excluded pages retain original block HTML and surrounding document bytes",
   assert.equal(enhanceResponse(html, base), document + markup + "</body></html>");
 });
 
-test("known extensionless image references can be linked from another block", () => {
+test("known extensionless image references can be linked from another block", async () => {
   const src = "https://blog.example/_emdash/api/media/file/known-image";
-  const html = contribution(page()).html + block(markup, [{ source: src }]) +
+  const html = (await contribution(page())).html + block(markup, [{ source: src }]) +
     block('<a href="/_emdash/api/media/file/known-image"><img src="/thumb.jpg" alt="Inline preview"></a>', [], true);
   assert.equal((enhanceResponse(html, base).match(/data-popcase=/g) ?? []).length, 2);
 });
 
 test("rewriting a response preserves cache/privacy headers and Astro cookie state but removes stale body validators", async () => {
-  const html = contribution(page()).html + block(markup, [source]);
+  const html = (await contribution(page())).html + block(markup, [source]);
   const response = new Response(html, { headers: {
     "content-type": "text/html", "content-length": "999", "etag": '"old"',
     "cache-control": "private, no-store", "vary": "Cookie", "set-cookie": "test=value; HttpOnly",

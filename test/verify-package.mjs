@@ -18,7 +18,7 @@ try {
     cwd: root, encoding: "utf8",
   }));
   const files = archive.files.map((file) => file.path);
-  for (const required of ["LICENSE", "index.js", "index.d.ts", "src/astro/index.ts", "src/client/bootstrap.ts", "src/client/viewer.tsx"]) {
+  for (const required of ["LICENSE", "index.js", "index.d.ts", "src/astro/index.ts", "src/client/bootstrap.ts", "src/client/viewer.tsx", "src/admin/index.tsx", "src/settings.js"]) {
     assert.ok(files.includes(required), `Missing package file: ${required}`);
   }
   assert.ok(files.every((file) => !/^(?:example|test|node_modules|\.git)\//.test(file)));
@@ -47,7 +47,7 @@ try {
     await setTimeout(200);
   }
   assert.ok(ready, "Consumer server did not become ready.");
-  for (const [query, expected] of [["", 8], ["?case=single", 1], ["?case=excluded", 0]]) {
+  for (const [query, expected] of [["", 8], ["?case=single", 1], ["?case=new-type", 8], ["?case=excluded", 0]]) {
     const response = await fetch(`${origin}/${query}`);
     assert.equal(response.status, 200);
     const html = await response.text();

@@ -166,6 +166,12 @@ importers:
 
   .:
     dependencies:
+      '@cloudflare/kumo':
+        specifier: ^2.6.0
+        version: 2.6.0(@date-fns/tz@1.5.0)(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.3.0)(date-fns@4.4.0)(echarts@6.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.5.4)
+      '@lingui/react':
+        specifier: ^5.9.5
+        version: 5.9.5(react@19.2.4)
       linkedom:
         specifier: ^0.18.13
         version: 0.18.13

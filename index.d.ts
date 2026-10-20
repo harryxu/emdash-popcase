@@ -2,8 +2,6 @@ import type { PluginDescriptor } from "emdash";
 import type { AstroIntegration } from "astro";
 
 export interface PopcaseOptions {
-  /** Content collections to enhance. Defaults to posts and pages. */
-  collections?: string[];
   zoom?: boolean;
   counter?: boolean;
   captions?: boolean;
@@ -12,7 +10,6 @@ export interface PopcaseOptions {
 }
 
 export interface PopcaseConfig {
-  collections: string[];
   zoom: boolean;
   counter: boolean;
   captions: boolean;

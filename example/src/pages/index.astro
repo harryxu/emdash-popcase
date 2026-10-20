@@ -34,8 +34,8 @@ if (scenario === "fail") {
   Astro.response.headers.set("Content-Security-Policy", `script-src ${scripts.map((name) => new URL(`/_astro/${name}`, Astro.url).href).join(" ") || "'none'"}`);
 }
 
-const page = createPublicPageContext({ Astro, kind: "content", content: {
-  collection: scenario === "excluded" ? "unlisted" : "pages", id: "popcase-verification", slug: "popcase-verification",
+const page = createPublicPageContext({ Astro, kind: scenario === "excluded" ? "custom" : "content", content: {
+  collection: scenario === "new-type" ? "notes" : "pages", id: "popcase-verification", slug: "popcase-verification",
 } });
 ---
 <!doctype html>

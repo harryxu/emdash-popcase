@@ -40,7 +40,6 @@ Native plugins install through site dependencies and configuration, rather than 
 
 ```js
 popcase({
-  collections: ["posts", "pages"],
   zoom: true,
   counter: true,
   captions: true,
@@ -48,9 +47,22 @@ popcase({
 });
 ```
 
-All three features default to enabled. `collections: []` disables enhancement. Labels follow the page's `lang`: Chinese for `zh` locales and English otherwise. `labels` overrides individual strings, including `Open image`, `Close`, `Next`, `Previous`, `Zoom in`, and `Zoom out`.
+All three viewer features default to enabled. Labels follow the page's `lang`: Chinese for `zh` locales and English otherwise. `labels` overrides individual strings, including `Open image`, `Close`, `Next`, `Previous`, `Zoom in`, and `Zoom out`.
 
 The viewer stops at the first and last image, supports mouse, keyboard, and touch navigation, and restores focus on close. Captions come from the image's use in the content; alternative text is not shown as a caption. Repeated uses of a source remain separate positions. Thumbnail strips, downloads, browser fullscreen, and slideshows are not included.
+
+## Content type settings
+
+Open **Popcase** in the admin sidebar, or visit `/_emdash/admin/plugins/popcase/settings`. Managing these settings requires `plugins:manage`. The page follows the administrator's Chinese or English locale and lists every registered content type, including hidden types and types without their own routes.
+
+- **Enable all content types** is checked by default, including on sites with no saved settings. It also enables future content types. Individual checkboxes are checked and disabled in this mode.
+- Uncheck **Enable all content types** to choose types individually. The selection starts empty, and newly created types remain disabled until explicitly selected.
+- Click **Save settings** to apply the selection to existing and new content. Saving an empty selection disables Popcase everywhere.
+- Saving all-types mode stores only `{ mode: "all" }` under the plugin-scoped `contentTypes` setting. Selected mode stores `{ mode: "selected", collections: [...] }`. Switching back to selected mode does not restore earlier selections.
+
+The former `collections` factory option has been removed and no longer controls eligibility. **Upgrade behavior:** sites with no saved admin settings now enable all content types, even if an earlier code configuration excluded them. Use the admin page to restrict the scope. Viewer options such as zoom remain in project configuration.
+
+Settings are read on each eligible page render without a plugin-local cache. Sites with full-page caches or prerendered HTML must invalidate that cache or rebuild those pages for changed settings to appear. Selecting a type does not add routes or expand Popcase's supported image rendering scope.
 
 ## A separate preview and viewer image
 
@@ -72,7 +84,7 @@ Local media and saved direct image URLs are supported. A provider-specific asset
 
 ## Boundaries
 
-Only content collections selected in configuration are enhanced. Featured images, listing cards, avatars, cover backgrounds, isolated iframes, and arbitrary third-party blocks are excluded. Visual editing keeps its editing behavior; the backend editor is unchanged.
+Content types are controlled by the Popcase admin settings. Featured images, listing cards, avatars, cover backgrounds, isolated iframes, and arbitrary third-party blocks are excluded. Visual editing keeps its editing behavior; the backend editor is unchanged.
 
 The plugin preserves core image and gallery rendering and adds fallback links around otherwise unlinked images. Check structural theme selectors if your theme relies on images being direct children of figures. `a[data-popcase]` is the viewer entry-point selector; viewer styles are scoped to `.popcase-viewer`.
 
@@ -88,11 +100,11 @@ pnpm dev
 pnpm test:package
 ```
 
-The package ships server JavaScript and type declarations, Astro renderers, and client source for compilation by the host. The packed artifact must include `src`; no local source aliases are required by consumers.
+The package ships server JavaScript and type declarations, Astro renderers, a native React admin entry, and client source for compilation by the host. The packed artifact must include `src`; no local source aliases are required by consumers.
 
-`pnpm test:package` packs the package, checks its file list, installs the tarball in a fresh temporary consumer, builds it, and checks image enhancement and collection exclusions over HTTP. It removes the temporary consumer afterward. CI runs this verification together with unit tests and type checks; it never publishes.
+`pnpm test:package` packs the package, checks its file list, installs the tarball in a fresh temporary consumer, builds it, and checks image enhancement and default enablement of new content types over HTTP. It removes the temporary consumer afterward. CI runs this verification together with unit tests and type checks; it never publishes.
 
-The example runs at `/` and supports `?case=single`, `?case=excluded`, `?case=nojs`, `?case=fail`, and `?lang=zh`. No-JavaScript and failed-module scenarios use a test-only content security policy; the failed-module scenario is intended for a production build.
+The example runs at `/` and supports `?case=single`, `?case=new-type`, `?case=excluded`, `?case=nojs`, `?case=fail`, and `?lang=zh`. No-JavaScript and failed-module scenarios use a test-only content security policy; the failed-module scenario is intended for a production build.
 
 For a retained consumer to inspect manually:
 

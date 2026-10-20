@@ -14,8 +14,10 @@ Use the terminology in [GLOSSARY.md](../../GLOSSARY.md). Distribution and image-
 
 - Distribute a reusable native plugin package, installed as a site dependency, registered in the EmDash configuration, and enabled by redeploying.
 - Register the companion `popcaseIntegration()` before the EmDash Astro integration. It completes server-rendered fallback links after page scope is known; public HTML is buffered rather than streamed. See [ADR-0003](../../docs/adr/0003-enhance-fallback-links-after-page-rendering.md).
-- Use project configuration rather than an admin settings page.
-- Make eligible content collections configurable; default to `posts` and `pages`.
+- Provide an admin settings page for content type eligibility. Default to all content types, including future types, and disable individual checkboxes while all-types mode is selected.
+- Unchecking all-types mode starts with an empty explicit selection. New types remain disabled in selected mode. Switching modes discards the previous selection; save explicitly to apply changes to existing and new content.
+- Store one plugin-scoped `contentTypes` value: `{ mode: "all" }` or `{ mode: "selected", collections: [...] }`. An empty selection disables Popcase everywhere. Enumerate all registered types, including hidden and non-routable types.
+- Replace the former `collections` factory option. Sites without saved settings default to all types, including those excluded by older project configuration. Read settings on each eligible page render; externally cached or prerendered HTML requires cache invalidation or regeneration.
 - Make zoom, image count, and captions individually configurable, enabled by default.
 - Provide Chinese and English interface labels. Select them from the page language, use English for unsupported languages, and allow configuration overrides.
 - Preserve the host's server rendering, image layout, and light/dark presentation. Keep theme changes out of the plugin's installation requirements.
@@ -23,7 +25,7 @@ Use the terminology in [GLOSSARY.md](../../GLOSSARY.md). Distribution and image-
 
 ## Content scope
 
-Enhance body images on post detail and ordinary content pages. Support standard image blocks, gallery blocks, images nested inside columns, and linked preview images in inline HTML blocks.
+Enhance body images on eligible content detail pages of any content type. Support standard image blocks, gallery blocks, images nested inside columns, and linked preview images in inline HTML blocks.
 
 Exclude listing cards, featured/cover images, cover backgrounds, author avatars, isolated HTML iframes, and arbitrary blocks contributed by other plugins. Add no album collection, album management screen, editor block, or shortcode parser.
 
@@ -100,8 +102,9 @@ The plugin's Astro renderers and client entry must be compiled by the host. Vali
 4. Local source images, separate preview/viewer images, direct external images, ordinary navigation links, and ambiguous links follow the specified source and exclusion rules.
 5. Keyboard opening, navigation, zoom, dismissal, focus restoration, and mobile touch interaction work. Chinese/English labels and configuration overrides are observable.
 6. No-JavaScript and simulated module-load failure preserve image-link fallback. A broken image cannot trap the reader in the overlay.
-7. Visual editing retains editing clicks. Collection exclusions and the three feature switches take effect.
+7. Visual editing retains editing clicks. Saved content type eligibility and the three feature switches take effect.
 8. Desktop/mobile and light/dark visual checks preserve the host's figure layout, captions, article rails, and reading flow. Check current Chromium, Firefox, and Safari behavior, including a mobile/touch viewport.
+9. The admin settings page lists all registered content types, defaults to all-types mode, disables individual checkboxes in that mode, clears selections when switching to selected mode, and persists only on explicit save. Empty selected mode disables all types; new types are enabled only in all-types mode. Invalid settings are rejected, and the private settings route requires `plugins:manage` and host CSRF protections.
 
 Use focused behavioral tests for grouping, URL classification, and source selection, plus browser checks for integration and accessibility. Run `pnpm test`, `pnpm typecheck`, and `pnpm test:package`; the last command builds the isolated consumer and verifies its HTTP output. Report actual browser/tool coverage and any unverified environment explicitly.
 

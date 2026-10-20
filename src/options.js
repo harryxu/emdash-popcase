@@ -1,8 +1,5 @@
 export function normalizeOptions(options = {}) {
   return {
-    collections: Array.isArray(options.collections)
-      ? options.collections.filter((value) => typeof value === "string")
-      : ["posts", "pages"],
     zoom: options.zoom !== false,
     counter: options.counter !== false,
     captions: options.captions !== false,

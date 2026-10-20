@@ -1,6 +1,7 @@
 import { definePlugin, getRequestContext } from "emdash";
 import { normalizeOptions } from "./src/options.js";
 import { encodeMarker } from "./src/markers.js";
+import { isCollectionEnabled, readContentTypes, settingsRoute } from "./src/settings.js";
 
 const version = "0.1.0";
 
@@ -11,6 +12,7 @@ export function popcase(options = {}) {
     format: "native",
     entrypoint: "emdash-popcase",
     componentsEntry: "emdash-popcase/astro",
+    adminEntry: "emdash-popcase/admin",
     options: normalizeOptions(options),
   };
 }
@@ -20,13 +22,17 @@ export function createPlugin(options = {}) {
   return definePlugin({
     id: "popcase",
     version,
-    capabilities: ["hooks.page-fragments:register"],
+    capabilities: ["hooks.page-fragments:register", "schema:read"],
+    admin: {
+      entry: "emdash-popcase/admin",
+      pages: [{ path: "/settings", label: "Popcase", icon: "images" }],
+    },
+    routes: { settings: settingsRoute },
     hooks: {
-      "page:fragments": ({ page }) => {
+      "page:fragments": async ({ page }, ctx) => {
         const context = getRequestContext();
-        const enabled = !context?.editMode && page.kind === "content" &&
-          config.collections.includes(page.content?.collection);
-        if (!enabled) return null;
+        if (context?.editMode || page.kind !== "content" || !page.content?.collection) return null;
+        if (!isCollectionEnabled(await readContentTypes(ctx.settings), page.content.collection)) return null;
         return {
           kind: "html",
           placement: "head",

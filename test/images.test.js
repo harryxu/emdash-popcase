@@ -26,9 +26,8 @@ test("provider sources are never guessed from their IDs", () => {
   assert.equal(imageSource({ asset: { _ref: "remote-id", provider: "custom", url: "https://images.example/full.jpg" } }, base), "https://images.example/full.jpg");
 });
 
-test("defaults, explicit exclusions and translated label overrides are independent", () => {
-  assert.deepEqual(normalizeOptions().collections, ["posts", "pages"]);
-  assert.deepEqual(normalizeOptions({ collections: [] }).collections, []);
+test("viewer defaults and translated label overrides are independent", () => {
+  assert.equal("collections" in normalizeOptions({ collections: ["posts"] }), false);
   assert.equal(normalizeOptions({ zoom: false }).zoom, false);
   assert.equal(normalizeOptions({ zoom: false }).captions, true);
   assert.equal(resolveLabels("zh-CN").Close, "关闭");
