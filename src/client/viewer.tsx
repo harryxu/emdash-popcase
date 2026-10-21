@@ -63,7 +63,7 @@ function Viewer({ request }: { request: OpenRequest }) {
     labels={labels}
     className="popcase-viewer"
     portal={{ root: host, container: { role: "presentation", "aria-modal": undefined, "aria-label": undefined } }}
-    carousel={{ finite: true, preload: 1 }}
+    carousel={{ finite: true, preload: 2 }}
     controller={{ aria: true, closeOnBackdropClick: true }}
     zoom={{ maxZoomPixelRatio: 1 }}
     counter={{ separator: labels.of ?? "of" }}

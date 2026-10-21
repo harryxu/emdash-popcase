@@ -62,6 +62,8 @@ Open **Popcase** in the admin sidebar, or visit `/_emdash/admin/plugins/popcase/
 
 **Enable thumbnails** is off by default. Enable it and click **Save settings** to show clickable thumbnails at the bottom of the viewer. This preference is saved as a boolean `thumbnails` field alongside `mode` and `collections` in the same plugin-scoped `contentTypes` record, so both settings are applied together. Existing records without this field keep thumbnails disabled. Thumbnail assets load with the viewer on the first open interaction.
 
+The viewer preloads up to two images on each side of the current image. The thumbnail strip uses the same range, so a three-image group includes all three thumbnails even when opening the first or last image. The visible thumbnails also depend on the available screen width.
+
 The former `collections` factory option has been removed and no longer controls eligibility. **Upgrade behavior:** sites with no saved admin settings now enable all content types, even if an earlier code configuration excluded them. Use the admin page to restrict the scope. Viewer options such as zoom remain in project configuration.
 
 Settings are read on each eligible page render without a plugin-local cache. Sites with full-page caches or prerendered HTML must invalidate that cache or rebuild those pages for changed settings to appear. Selecting a type does not add routes or expand Popcase's supported image rendering scope.
