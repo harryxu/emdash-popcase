@@ -96,7 +96,8 @@ export function openViewer(request: OpenRequest) {
     if (event.key !== "Tab" || !host) return;
     const controls = Array.from(host.querySelectorAll<HTMLElement>(
       'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    )).filter((element) => element.tabIndex >= 0 && element.getClientRects().length > 0 && !element.closest("[inert]"));
+    )).filter((element) => element.tabIndex >= 0 && element.getClientRects().length > 0 &&
+      getComputedStyle(element).visibility !== "hidden" && !element.closest("[inert]"));
     const first = controls[0];
     const last = controls.at(-1);
     if (first && last && ((!event.shiftKey && document.activeElement === last) ||

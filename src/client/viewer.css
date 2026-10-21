@@ -62,4 +62,25 @@
     box-sizing: border-box;
     padding: 8px 16px 0;
   }
+
+  &:has(.yarl__slide_current .yarl__slide_wrapper_interactive) {
+    background: var(--yarl__color_backdrop);
+
+    & .yarl__container {
+      overflow: visible;
+      background: transparent;
+    }
+
+    & .yarl__slide_current {
+      overflow: visible;
+    }
+
+    & .yarl__slide:not(.yarl__slide_current),
+    & .yarl__slide_captions_container,
+    & .yarl__thumbnails_container {
+      /* Keep the zoom reference size stable, but clip only at the full-screen dialog. */
+      visibility: hidden;
+      pointer-events: none;
+    }
+  }
 }
