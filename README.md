@@ -4,6 +4,8 @@ A native EmDash plugin for viewing body images with [Yet Another React Lightbox]
 
 Popcase opens images from existing image and gallery blocks without requiring you to resave entries. Images on each content page form one group in page order, including supported images in columns and linked images in inline HTML. The viewer loads its code and styles on the first click. Image links still work without JavaScript.
 
+![Screenshot 1](images/screenshot1.jpg)
+
 ## Installation
 
 Popcase requires EmDash 1.3.1+, Astro 7, React, and React DOM. Configure `@astrojs/react` in your site to compile the packaged React client.
