@@ -122,21 +122,5 @@ Install dependencies and run `pnpm dev` or `pnpm build` in the printed directory
 
 Add `"emdash-popcase": "link:../emdash-popcase"` to a sibling site's dependencies. Run `pnpm install` and `pnpm build` in this repository, then install the site's dependencies. After publishing, replace the link with a registry version, for example `pnpm add emdash-popcase@0.1.0`.
 
-## Manual release
-
-Publish `emdash-popcase` through npm. Its EmDash plugin ID is `popcase`.
-
-Before the first release, set `repository`, `homepage`, and `bugs` in `package.json`, confirm the version, and log in to npm.
-
-```sh
-pnpm install --frozen-lockfile
-pnpm test
-pnpm typecheck
-pnpm test:package
-npm pack --dry-run
-npm publish --access public
-```
-
-`npm publish` runs verification through `prepublishOnly`. Commit and tag the verified release before pushing.
 
 Source code is licensed under MIT. Dependencies retain their own licenses.
