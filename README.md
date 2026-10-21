@@ -14,6 +14,8 @@ Requires EmDash 1.3.1+, Astro 7, React, React DOM, and `@astrojs/react`.
 pnpm add emdash-popcase
 ```
 
+Add the configuration below to `astro.config.mjs` (or `astro.config.ts`) in your EmDash site's root directory, next to `package.json`. Keep your existing settings and plugins, and register `react()` only once.
+
 ```ts
 import react from "@astrojs/react";
 import emdash from "emdash/astro";
