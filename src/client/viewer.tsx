@@ -5,6 +5,7 @@ import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Counter from "yet-another-react-lightbox/plugins/counter";
 import Captions from "yet-another-react-lightbox/plugins/captions";
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
+import Video from "yet-another-react-lightbox/plugins/video";
 import lightboxStyles from "yet-another-react-lightbox/styles.css?url";
 import counterStyles from "yet-another-react-lightbox/plugins/counter.css?url";
 import captionStyles from "yet-another-react-lightbox/plugins/captions.css?url";
@@ -49,6 +50,7 @@ function Viewer({ request }: { request: OpenRequest }) {
   const [open, setOpen] = useState(true);
   const labels = request.config.labels;
   const plugins = [
+    Video,
     ...(request.config.zoom ? [Zoom] : []),
     ...(request.config.counter ? [Counter] : []),
     ...(request.config.captions ? [Captions] : []),
@@ -56,8 +58,11 @@ function Viewer({ request }: { request: OpenRequest }) {
   ];
   return <Lightbox
     open={open}
-    close={() => setOpen(false)}
-    slides={request.images}
+    close={() => {
+      host?.querySelectorAll("video").forEach((video) => video.pause());
+      setOpen(false);
+    }}
+    slides={request.slides}
     index={request.index}
     plugins={plugins}
     labels={labels}
@@ -69,7 +74,8 @@ function Viewer({ request }: { request: OpenRequest }) {
     counter={{ separator: labels.of ?? "of" }}
     captions={{ descriptionMaxLines: 3, showToggle: false }}
     thumbnails={{ position: "bottom", showToggle: false }}
-    render={request.images.length === 1 ? { buttonPrev: () => null, buttonNext: () => null } : undefined}
+    video={{ controls: true, playsInline: true, autoPlay: true, preload: "none" }}
+    render={request.slides.length === 1 ? { buttonPrev: () => null, buttonNext: () => null } : undefined}
     on={{ exited: () => {
       disposeViewer();
       if (request.trigger.isConnected) request.trigger.focus({ preventScroll: true });
@@ -78,6 +84,7 @@ function Viewer({ request }: { request: OpenRequest }) {
 }
 
 export function disposeViewer() {
+  host?.querySelectorAll("video").forEach((video) => video.pause());
   root?.unmount();
   host?.close();
   host?.remove();
@@ -91,11 +98,15 @@ export function openViewer(request: OpenRequest) {
   host.dataset.popcaseRoot = "";
   host.className = "popcase-dialog";
   host.setAttribute("aria-label", request.config.labels.Lightbox ?? "Lightbox");
-  host.addEventListener("cancel", (event) => event.preventDefault());
+  host.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    disposeViewer();
+    if (request.trigger.isConnected) request.trigger.focus({ preventScroll: true });
+  });
   host.addEventListener("keydown", (event) => {
     if (event.key !== "Tab" || !host) return;
     const controls = Array.from(host.querySelectorAll<HTMLElement>(
-      'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      'button:not([disabled]), a[href], video[controls], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
     )).filter((element) => element.tabIndex >= 0 && element.getClientRects().length > 0 &&
       getComputedStyle(element).visibility !== "hidden" && !element.closest("[inert]"));
     const first = controls[0];

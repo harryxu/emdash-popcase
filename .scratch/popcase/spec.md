@@ -25,6 +25,14 @@ Use the terminology in [GLOSSARY.md](../../GLOSSARY.md). Distribution and image-
 
 ## Content scope
 
+### Direct video links (2026-10-22)
+
+On eligible content detail pages, enhance image links and text links whose URL pathname ends in `.mp4`, `.webm`, or `.ogv`. Preserve URL queries and fragments, fallback links, modified-click navigation, and placement order. Images provide posters without assigning image dimensions to videos. Mixed image/video groups retain repeated occurrences. Inject the bootstrap independently of image renderers so text-only content works.
+
+Video link enhancement applies across the completed eligible page; image enhancement remains restricted to supported body blocks. This supersedes image-only destination exclusions below for confirmed direct video links. See [ADR-0004](../../docs/adr/0004-open-direct-video-links-in-the-viewer.md).
+
+Native `/video` blocks keep inline playback. Video-site links, extensionless URLs, streaming manifests, download links, and visual editing are excluded. Use the YARL Video plugin with controls, inline playback, autoplay with sound when opened or navigated to, and no video preloading before opening the viewer. Retain manual playback controls when the browser blocks autoplay. Do not introduce editor blocks, core editor fields, URL probes, or transcoding.
+
 Enhance body images on eligible content detail pages of any content type. Support standard image blocks, gallery blocks, images nested inside columns, and linked preview images in inline HTML blocks.
 
 Exclude listing cards, featured/cover images, cover backgrounds, author avatars, isolated HTML iframes, and arbitrary blocks contributed by other plugins. Add no album collection, album management screen, editor block, or shortcode parser.

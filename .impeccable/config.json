@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "test/rendering.test.ts"
+        ],
+        "createdAt": "2026-10-21T19:30:34.257Z",
+        "reason": "Agent reviewed: HTML strings in this behavioral test use synthetic image URLs to verify server markup and do not render product UI."
+      }
+    ]
+  }
+}

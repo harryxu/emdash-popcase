@@ -55,8 +55,9 @@ export function popcaseIntegration(): AstroIntegration {
   return {
     name: "popcase",
     hooks: {
-      "astro:config:setup": ({ addMiddleware }) => {
+      "astro:config:setup": ({ addMiddleware, injectScript }) => {
         addMiddleware({ entrypoint: "emdash-popcase/middleware", order: "pre" });
+        injectScript("page", 'import "emdash-popcase/client";');
       },
     },
   };

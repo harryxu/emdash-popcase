@@ -1,6 +1,7 @@
 import { parseHTML } from "linkedom";
 import { imageSource, isImageDestination, positiveDimension, safeImageUrl } from "./images.js";
 import { decodeMarker } from "./markers.js";
+import { videoSource } from "./videos.js";
 
 import type { BlockMetadata, ImageMetadata, PopcaseConfig } from "./types.js";
 
@@ -61,11 +62,32 @@ export function enhanceResponse(html: string, base: string): string {
       knownSources.push(...(decodeMarker<BlockMetadata>(match[1]).nodes ?? []).map((node) => node.source).filter((value): value is string => Boolean(value)));
     } catch { /* Invalid markers leave the original block unchanged. */ }
   }
-  return content.replace(blocks, (_, encoded, markup) => {
+  const output = content.replace(blocks, (_, encoded, markup) => {
     if (!config) return markup;
     try {
       const metadata = decodeMarker<BlockMetadata>(encoded);
       return enhanceHtml(markup, { ...metadata, base, config, knownSources });
     } catch { return markup; }
   });
+  if (!config) return output;
+  const { document } = parseHTML(output);
+  let changed = false;
+  for (const anchor of document.querySelectorAll<HTMLAnchorElement>("a[href]")) {
+    if (anchor.hasAttribute("data-popcase") || anchor.hasAttribute("download") ||
+        anchor.closest('[contenteditable="true"], .emdash-inline-editor, figure.emdash-video, [data-popcase-root]')) continue;
+    const source = videoSource(anchor.getAttribute("href"), base);
+    if (!source) continue;
+    const img = anchor.querySelector("img");
+    const poster = safeImageUrl(img?.getAttribute("src"), base);
+    const alt = img?.getAttribute("alt") ?? anchor.textContent?.trim() ?? "";
+    const description = anchor.closest("figure")?.querySelector("figcaption")?.textContent ?? "";
+    anchor.setAttribute("data-popcase", JSON.stringify({
+      type: "video", src: source.src, sources: [source], alt, description,
+      ...(poster ? { poster } : {}),
+    }));
+    anchor.setAttribute("data-popcase-config", JSON.stringify(config));
+    anchor.setAttribute("aria-label", `${config.labels["Open video"] ?? "Open video"}${alt ? `: ${alt}` : ""}`);
+    changed = true;
+  }
+  return changed ? document.toString() : output;
 }

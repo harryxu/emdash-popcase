@@ -49,8 +49,10 @@ test("inline HTML enhances only image destination links and treats captions as t
   const document = documentOf(enhanceHtml(html, { ...options, inline: true }));
   const entries = collectGroup(document);
   assert.equal(entries.length, 1);
-  assert.equal(entries[0].image.description, "A & B <script>");
-  assert.equal(entries[0].image.width, undefined);
+  assert.equal(entries[0].slide.description, "A & B <script>");
+  assert.notEqual(entries[0].slide.type, "video");
+  if (entries[0].slide.type === "video") throw new Error("Expected an image slide.");
+  assert.equal(entries[0].slide.width, undefined);
 });
 
 test("viewing groups preserve body order and repeated sources across images and galleries", () => {
@@ -58,7 +60,7 @@ test("viewing groups preserve body order and repeated sources across images and 
   const gallery = enhanceHtml('<div class="emdash-gallery"><figure class="emdash-gallery-item"><img src="/thumb2.jpg"></figure></div>', { ...options, nodes: [{ asset: { _ref: "second", url: "/second.jpg" } }] });
   const last = enhanceHtml(markup, { ...options, nodes: [node] });
   const entries = collectGroup(documentOf(first + gallery + last));
-  assert.deepEqual(entries.map((entry) => entry.image.src), ["https://blog.example/full.jpg", "https://blog.example/second.jpg", "https://blog.example/full.jpg"]);
+  assert.deepEqual(entries.map((entry) => entry.slide.src), ["https://blog.example/full.jpg", "https://blog.example/second.jpg", "https://blog.example/full.jpg"]);
   assert.notEqual(entries[0].anchor, entries[2].anchor);
 });
 

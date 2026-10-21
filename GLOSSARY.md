@@ -9,11 +9,11 @@ An image embedded in the main content of a post or content page. Cover images, l
 _Avoid_: Page image, article asset
 
 **Image viewer**:
-An overlay for viewing an enlarged body image without leaving the current content page.
+An overlay for viewing enlarged body images and playing linked videos without leaving the current content page.
 _Avoid_: Album manager, media library
 
 **Viewing group**:
-The ordered body images available for navigation in one image viewer session. Each post or content page has one group, including images inside gallery blocks and excluding images whose links lead to ordinary navigation destinations or destinations not confirmed to be image resources.
+The ordered body images and direct video link occurrences available for navigation in one viewer session. Each eligible content page has one group. Ordinary navigation links and destinations not confirmed to be supported image or video resources are excluded.
 _Avoid_: Album, gallery block
 
 **Gallery block**:
@@ -31,3 +31,9 @@ _Avoid_: Original image, thumbnail asset
 **Viewer image**:
 The image shown after a reader opens a body image in the image viewer. It is the body image's source unless the author links that placement to another confirmed image resource.
 _Avoid_: Original image, full-size master
+
+**Direct video link**:
+An image or text link to a video file itself, rather than a page hosting a player.
+
+**Video poster**:
+The preview image representing a linked video before playback in the viewer.

@@ -36,7 +36,13 @@ test("native configuration uses real page identity and stays isolated across con
   const middlewares: Middleware[] = [];
   const setup = popcaseIntegration().hooks["astro:config:setup"];
   assert.ok(setup);
-  setup({ addMiddleware: (entry) => { middlewares.push(entry); } } as Parameters<Setup>[0]);
+  const scripts: string[] = [];
+  const hooks: Pick<Parameters<Setup>[0], "injectScript" | "addMiddleware"> = {
+    injectScript: (_stage, code) => { scripts.push(code); },
+    addMiddleware: (entry) => { middlewares.push(entry); },
+  };
+  setup(hooks as Parameters<Setup>[0]);
+  assert.ok(scripts.includes('import "emdash-popcase/client";'));
   assert.equal(middlewares[0].order, "pre");
   assert.equal(middlewares[0].entrypoint, "emdash-popcase/middleware");
 });

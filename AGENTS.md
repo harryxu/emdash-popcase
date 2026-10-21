@@ -39,3 +39,20 @@ Before relying on an EmDash API, hook, config option, or rendering pattern, quer
 ## Release
 
 Follow `README.md` for package metadata and manual release checks. Publishing, pushing, and tagging remain explicit maintainer actions. CI verifies the package without publishing it.
+
+## Agent skills
+
+### Issue tracker
+
+Track issues and specs as local Markdown files under `.scratch/<feature>/`.
+Read `docs/agents/issue-tracker.md` before creating or updating tickets.
+
+### Triage labels
+
+Use the default triage vocabulary.
+Read `docs/agents/triage-labels.md` when assigning triage status.
+
+### Domain docs
+
+Use a single-context layout: root `GLOSSARY.md` and `docs/adr/`.
+Read `docs/agents/domain.md` before exploring domain concepts or decisions.

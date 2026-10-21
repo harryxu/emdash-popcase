@@ -24,10 +24,6 @@ const output = getRequestContext()?.editMode ? html
 
 <Fragment set:html={output} />
 
-<script>
-  import "../client/bootstrap";
-</script>
-
 <style is:global>
   a[data-popcase] { cursor: pointer; }
   a[data-popcase][aria-busy="true"] { cursor: progress; }

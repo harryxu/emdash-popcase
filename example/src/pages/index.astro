@@ -11,6 +11,17 @@ const image = (key: string, name = "diagram", caption = "A diagram caption") => 
 });
 const content = scenario === "single" || scenario === "nojs" || scenario === "fail"
   ? [image("Single diagram")]
+  : scenario === "video-text" ? [{
+    _type: "block", _key: "video-text", style: "normal",
+    markDefs: [{ _key: "video-link", _type: "link", href: "/__popcase-videos/demo.mp4" }],
+    children: [{ _type: "span", _key: "video-span", text: "Watch the demo", marks: ["video-link"] }],
+  }]
+  : scenario === "video" ? [
+    { ...image("Video preview", "preview", "Synthetic video demo"), link: { href: "/__popcase-videos/demo.mp4" } },
+    { _type: "htmlBlock", _key: "video-html", isolated: false, html: '<p><a href="/__popcase-videos/demo.mp4?repeat=1">Watch again</a></p>' },
+    image("Image beside video"),
+    { _type: "video", _key: "native-video", asset: { _ref: "demo-video", url: "/__popcase-videos/demo.mp4" }, caption: "Native inline video" },
+  ]
   : [
     image("First diagram"),
     { ...image("Separate preview", "preview", "A different viewer source"), width: 480, height: 320, link: { href: url("detail") } },

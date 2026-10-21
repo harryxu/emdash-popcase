@@ -1,6 +1,6 @@
 # emdash-popcase
 
-A native EmDash plugin for viewing body images with [Yet Another React Lightbox](https://yet-another-react-lightbox.com/).
+A native EmDash plugin for viewing body images and playing linked video files with [Yet Another React Lightbox](https://yet-another-react-lightbox.com/).
 
 Click an image to open the viewer. Images, galleries, supported columns, and linked images in inline HTML share one group per content page. Existing entries work without resaving.
 
@@ -84,6 +84,20 @@ For inline HTML, choose the HTML block's "Inline" mode:
 
 ## Supported content and limitations
 
+### Playing linked videos
+
+On enabled content detail pages, image links and text links to `.mp4`, `.webm`, or `.ogv` files open in the viewer. Query strings and fragments are preserved. Images and linked videos share one viewing group in page order.
+
+- For a video cover, insert an image and set its **Link URL** to the public video file URL. The image becomes the player's poster; its caption is shown in the viewer.
+- For a text entry point, select text and add a link to the public video file URL. No image is required.
+- Videos show native playback controls and attempt to play with sound when opened or navigated to. If the browser blocks autoplay, press Play. Video files are not preloaded by Popcase before opening the viewer.
+
+Direct video links are detected throughout the eligible page, including ordinary Portable Text paragraphs, columns, and inline HTML. No content block or editor setting is required. Download links and visual-editing surfaces are excluded. Without JavaScript or if the viewer fails to load, links retain their original destinations.
+
+Native `/video` blocks keep their inline players. YouTube, Vimeo and other video-site pages, streaming manifests, and extensionless video URLs are not enhanced. Use a browser-playable direct file URL; Popcase does not transcode videos or probe arbitrary URLs.
+
+### Images and other content
+
 Popcase supports local media and saved direct image URLs. Provider-specific assets need an explicit source URL.
 
 Featured images, listing cards, avatars, cover backgrounds, isolated iframes, and arbitrary third-party blocks are excluded. Popcase leaves frontend visual editing and the backend editor unchanged.
@@ -109,6 +123,8 @@ pnpm test:package
 `pnpm test:package` installs the tarball in a temporary consumer, checks its files and public types, builds it, and verifies image markup and default content type settings over HTTP. It removes the consumer afterward. CI runs this alongside tests and type checks.
 
 The example supports `?case=single`, `?case=new-type`, `?case=excluded`, `?case=nojs`, and `?case=fail`. Test the failed-module scenario in a production build.
+
+Use `?case=video` for linked covers, text links, mixed image/video navigation, and the unchanged native player. Use `?case=video-text` to verify a page with no images. The included silent video is a two-second FFmpeg `testsrc2` pattern encoded as H.264, with no external media dependency.
 
 To keep a consumer for manual inspection:
 

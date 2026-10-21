@@ -5,12 +5,13 @@ let sequence = 0;
 let viewer: typeof import("./viewer") | undefined;
 
 function initialize() {
-  for (const { anchor, image } of collectGroup(document)) {
+  for (const { anchor, slide } of collectGroup(document)) {
     const config = normalizeOptions(JSON.parse(anchor.dataset.popcaseConfig ?? "{}"));
     const labels = config.labels;
     anchor.setAttribute("role", "button");
     anchor.setAttribute("aria-haspopup", "dialog");
-    anchor.setAttribute("aria-label", `${labels["Open image"] ?? "Open image"}${image.alt ? `: ${image.alt}` : ""}`);
+    const label = slide.type === "video" ? "Open video" : "Open image";
+    anchor.setAttribute("aria-label", `${labels[label] ?? label}${slide.alt ? `: ${slide.alt}` : ""}`);
   }
 }
 
@@ -31,14 +32,14 @@ document.addEventListener("click", async (event) => {
     await viewer.prepareViewer();
     if (request !== sequence || !anchor.isConnected) return;
     viewer.openViewer({
-      images: group.map((entry) => entry.image),
+      slides: group.map((entry) => entry.slide),
       index,
       config: normalizeOptions(JSON.parse(anchor.dataset.popcaseConfig ?? "{}")),
       trigger: anchor,
     });
   } catch (error) {
     if (request === sequence && anchor.isConnected) {
-      console.warn("Popcase could not open the image viewer; opening the image directly.", error);
+      console.warn("Popcase could not open the viewer; opening the media directly.", error);
       window.location.assign(anchor.href);
     }
   } finally {

@@ -22,6 +22,7 @@
     },
     "./astro": "./src/astro/index.ts",
     "./admin": "./src/admin/index.tsx",
+    "./client": "./src/client/bootstrap.ts",
     "./middleware": {
       "types": "./dist/middleware.d.ts",
       "import": "./dist/middleware.js"

@@ -1,6 +1,7 @@
 import type { PopcaseConfig } from "../types.js";
 
 export interface ViewerImage {
+  type?: "image";
   src: string;
   alt: string;
   description: string;
@@ -8,13 +9,24 @@ export interface ViewerImage {
   height?: number;
 }
 
+export interface ViewerVideo {
+  type: "video";
+  src: string;
+  sources: { src: string; type: string }[];
+  poster?: string;
+  alt: string;
+  description: string;
+}
+
+export type ViewerSlide = ViewerImage | ViewerVideo;
+
 export function collectGroup(document: Document) {
   return Array.from(document.querySelectorAll<HTMLAnchorElement>("a[data-popcase]"))
     .filter((anchor) => !anchor.closest('[contenteditable="true"], .emdash-inline-editor'))
     .flatMap((anchor) => {
       try {
-        const image = JSON.parse(anchor.dataset.popcase!) as ViewerImage;
-        return image.src ? [{ anchor, image }] : [];
+        const slide = JSON.parse(anchor.dataset.popcase!) as ViewerSlide;
+        return slide.src ? [{ anchor, slide }] : [];
       } catch {
         return [];
       }
@@ -22,7 +34,7 @@ export function collectGroup(document: Document) {
 }
 
 export interface OpenRequest {
-  images: ViewerImage[];
+  slides: ViewerSlide[];
   index: number;
   config: PopcaseConfig;
   trigger: HTMLAnchorElement;
