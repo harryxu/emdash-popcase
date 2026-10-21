@@ -1,6 +1,5 @@
 import { parseHTML } from "linkedom";
 import { imageSource, isImageDestination, positiveDimension, safeImageUrl } from "./images.js";
-import { resolveLabels } from "./options.js";
 import { decodeMarker } from "./markers.js";
 
 import type { BlockMetadata, ImageMetadata, PopcaseConfig } from "./types.js";
@@ -43,7 +42,7 @@ export function enhanceHtml(html: string, { nodes = [], base, publicUrl, config,
       ...(width && height ? { width, height } : {}),
     }));
     anchor.setAttribute("data-popcase-config", JSON.stringify(config));
-    const label = resolveLabels("en", config.labels)["Open image"] ?? "Open image";
+    const label = config.labels["Open image"] ?? "Open image";
     anchor.setAttribute("aria-label", `${label}${img.getAttribute("alt") ? `: ${img.getAttribute("alt")}` : ""}`);
   }
   return document.body.innerHTML;

@@ -1,7 +1,7 @@
 import { definePlugin, getRequestContext } from "emdash";
 import { normalizeOptions } from "./options.js";
 import { encodeMarker } from "./markers.js";
-import { isCollectionEnabled, readContentTypes, settingsRoute } from "./settings.js";
+import { isCollectionEnabled, readSettings, settingsRoute } from "./settings.js";
 
 import type { PluginDescriptor } from "emdash";
 import type { AstroIntegration } from "astro";
@@ -38,12 +38,13 @@ export function createPlugin(options: PopcaseOptions = {}) {
       "page:fragments": async ({ page }, ctx) => {
         const context = getRequestContext();
         if (context?.editMode || page.kind !== "content" || !page.content?.collection) return null;
-        if (!isCollectionEnabled(await readContentTypes(ctx.settings), page.content.collection)) return null;
+        const settings = await readSettings(ctx.settings);
+        if (!isCollectionEnabled(settings.settings, page.content.collection)) return null;
         return {
           kind: "html",
           placement: "head",
           key: "popcase-page",
-          html: `<template data-popcase-page>${encodeMarker(config)}</template>`,
+          html: `<template data-popcase-page>${encodeMarker({ ...config, thumbnails: settings.thumbnails })}</template>`,
         };
       },
     },

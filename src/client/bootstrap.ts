@@ -1,5 +1,5 @@
 import { collectGroup } from "./group";
-import { normalizeOptions, resolveLabels } from "../options.js";
+import { normalizeOptions } from "../options.js";
 
 let sequence = 0;
 let viewer: typeof import("./viewer") | undefined;
@@ -7,7 +7,7 @@ let viewer: typeof import("./viewer") | undefined;
 function initialize() {
   for (const { anchor, image } of collectGroup(document)) {
     const config = normalizeOptions(JSON.parse(anchor.dataset.popcaseConfig ?? "{}"));
-    const labels = resolveLabels(document.documentElement.lang, config.labels);
+    const labels = config.labels;
     anchor.setAttribute("role", "button");
     anchor.setAttribute("aria-haspopup", "dialog");
     anchor.setAttribute("aria-label", `${labels["Open image"] ?? "Open image"}${image.alt ? `: ${image.alt}` : ""}`);
@@ -34,7 +34,6 @@ document.addEventListener("click", async (event) => {
       images: group.map((entry) => entry.image),
       index,
       config: normalizeOptions(JSON.parse(anchor.dataset.popcaseConfig ?? "{}")),
-      language: document.documentElement.lang,
       trigger: anchor,
     });
   } catch (error) {

@@ -4,7 +4,6 @@ import { createPublicPageContext } from "emdash/page";
 import { readdir } from "node:fs/promises";
 
 const scenario = Astro.url.searchParams.get("case") ?? "all";
-const language = Astro.url.searchParams.get("lang") ?? "en";
 const url = (name: string) => new URL(`/__popcase-images/${name}.svg`, Astro.url).href;
 const image = (key: string, name = "diagram", caption = "A diagram caption") => ({
   _type: "image", _key: key, asset: { _ref: key, url: url(name) },
@@ -39,7 +38,7 @@ const page = createPublicPageContext({ Astro, kind: scenario === "excluded" ? "c
 } });
 ---
 <!doctype html>
-<html lang={language}>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -49,7 +48,7 @@ const page = createPublicPageContext({ Astro, kind: scenario === "excluded" ? "c
   <body>
     <main>
       <h1>Popcase verification</h1>
-      <p>Scenario: {scenario}. Language: {language}.</p>
+      <p>Scenario: {scenario}.</p>
       <PortableText value={content} />
       <a href="/?case=single">View a single image</a>
     </main>

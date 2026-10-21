@@ -25,6 +25,5 @@ export interface OpenRequest {
   images: ViewerImage[];
   index: number;
   config: PopcaseConfig;
-  language: string;
   trigger: HTMLAnchorElement;
 }

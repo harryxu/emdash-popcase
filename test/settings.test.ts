@@ -68,7 +68,7 @@ test("empty selection disables everything and all mode discards any saved whitel
   assert.doesNotMatch(await render("notes"), /data-popcase=/);
   await request("POST", { mode: "selected", collections: ["posts"] });
   await request("POST", { mode: "all", collections: ["posts"] });
-  assert.deepEqual([...values], [["contentTypes", { mode: "all" }]]);
+  assert.deepEqual([...values], [["contentTypes", { mode: "all", thumbnails: false }]]);
   assert.match(await render("notes"), /data-popcase=/);
   await request("POST", { mode: "selected", collections: [] });
   assert.doesNotMatch(await render("posts"), /data-popcase=/);
@@ -105,4 +105,34 @@ test("native descriptor pairs its admin entry with a private manager-only settin
   assert.notEqual(plugin.routes.settings.public, true);
   assert.deepEqual(plugin.routes.settings.methods, ["GET", "POST"]);
   assert.ok(plugin.capabilities.includes("schema:read"));
+});
+
+
+test("thumbnails default off, migrate existing settings, persist and reach public image configuration", async () => {
+  const { request, read, render, values } = fixture();
+  assert.equal((await read()).thumbnails, false);
+  values.set("contentTypes", { mode: "selected", collections: ["posts"] });
+  assert.equal((await read()).thumbnails, false);
+  for (const thumbnails of [true, false]) {
+    const result = await request("POST", { mode: "selected", collections: ["posts"], thumbnails });
+    assert.ok(result.ok);
+    assert.equal(result.thumbnails, thumbnails);
+    assert.equal((await read()).thumbnails, thumbnails);
+    assert.deepEqual((await read()).settings, { mode: "selected", collections: ["posts"] });
+    const html = await render("posts");
+    assert.ok(html.includes(`&quot;thumbnails&quot;:${thumbnails}`));
+    assert.doesNotMatch(await render("pages"), /data-popcase=/);
+  }
+});
+
+test("invalid thumbnail values cannot overwrite either setting", async () => {
+  const { request, read, values, render } = fixture();
+  await request("POST", { mode: "all", thumbnails: true });
+  for (const thumbnails of [null, "true", "false", 0, 1, [], {}]) {
+    assert.deepEqual(await request("POST", { mode: "selected", collections: [], thumbnails }), { ok: false, error: "INVALID_SETTINGS" });
+    assert.equal((await read()).thumbnails, true);
+    assert.deepEqual((await read()).settings, { mode: "all" });
+  }
+  values.set("contentTypes", { mode: "all", thumbnails: "true" });
+  await assert.rejects(render("posts"), /Invalid Popcase thumbnail settings/);
 });

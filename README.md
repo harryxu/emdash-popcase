@@ -47,18 +47,20 @@ popcase({
 });
 ```
 
-All three viewer features default to enabled. Labels follow the page's `lang`: Chinese for `zh` locales and English otherwise. `labels` overrides individual strings, including `Open image`, `Close`, `Next`, `Previous`, `Zoom in`, and `Zoom out`.
+All three viewer features default to enabled. Interface labels use English regardless of the page language. `labels` overrides individual strings, including `Open image`, `Close`, `Next`, `Previous`, `Zoom in`, and `Zoom out`.
 
-The viewer stops at the first and last image, supports mouse, keyboard, and touch navigation, and restores focus on close. Captions come from the image's use in the content; alternative text is not shown as a caption. Repeated uses of a source remain separate positions. Thumbnail strips, downloads, browser fullscreen, and slideshows are not included.
+The viewer stops at the first and last image, supports mouse, keyboard, and touch navigation, and restores focus on close. Captions come from the image's use in the content; alternative text is not shown as a caption. Repeated uses of a source remain separate positions. Optional thumbnail strips appear at the bottom of the viewer and navigate within the same viewing group. Downloads, browser fullscreen, and slideshows are not included.
 
-## Content type settings
+## Admin settings
 
-Open **Popcase** in the admin sidebar, or visit `/_emdash/admin/plugins/popcase/settings`. Managing these settings requires `plugins:manage`. The page follows the administrator's Chinese or English locale and lists every registered content type, including hidden types and types without their own routes.
+Open **Popcase** in the admin sidebar, or visit `/_emdash/admin/plugins/popcase/settings`. Managing these settings requires `plugins:manage`. The page uses English and lists every registered content type, including hidden types and types without their own routes.
 
 - **Enable all content types** is checked by default, including on sites with no saved settings. It also enables future content types. Individual checkboxes are checked and disabled in this mode.
 - Uncheck **Enable all content types** to choose types individually. The selection starts empty, and newly created types remain disabled until explicitly selected.
 - Click **Save settings** to apply the selection to existing and new content. Saving an empty selection disables Popcase everywhere.
-- Saving all-types mode stores only `{ mode: "all" }` under the plugin-scoped `contentTypes` setting. Selected mode stores `{ mode: "selected", collections: [...] }`. Switching back to selected mode does not restore earlier selections.
+- Saving all-types mode stores `{ mode: "all", thumbnails: false }` (or `true` when enabled) under the plugin-scoped `contentTypes` setting. Selected mode stores `{ mode: "selected", collections: [...], thumbnails: false }` (or `true`). Switching back to selected mode does not restore earlier selections.
+
+**Enable thumbnails** is off by default. Enable it and click **Save settings** to show clickable thumbnails at the bottom of the viewer. This preference is saved as a boolean `thumbnails` field alongside `mode` and `collections` in the same plugin-scoped `contentTypes` record, so both settings are applied together. Existing records without this field keep thumbnails disabled. Thumbnail assets load with the viewer on the first open interaction.
 
 The former `collections` factory option has been removed and no longer controls eligibility. **Upgrade behavior:** sites with no saved admin settings now enable all content types, even if an earlier code configuration excluded them. Use the admin page to restrict the scope. Viewer options such as zoom remain in project configuration.
 
@@ -112,7 +114,7 @@ Astro renderers, the native React admin entry, and browser client source remain 
 
 `pnpm test:package` packs the package, checks its file list, installs the tarball in a fresh temporary consumer, verifies its public TypeScript declarations, builds it, and checks image enhancement and default enablement of new content types over HTTP. It removes the temporary consumer afterward. CI runs this verification together with unit tests and type checks; it never publishes.
 
-The example runs at `/` and supports `?case=single`, `?case=new-type`, `?case=excluded`, `?case=nojs`, `?case=fail`, and `?lang=zh`. No-JavaScript and failed-module scenarios use a test-only content security policy; the failed-module scenario is intended for a production build.
+The example runs at `/` and supports `?case=single`, `?case=new-type`, `?case=excluded`, `?case=nojs`, and `?case=fail`. No-JavaScript and failed-module scenarios use a test-only content security policy; the failed-module scenario is intended for a production build.
 
 For a retained consumer to inspect manually:
 

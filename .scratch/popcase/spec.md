@@ -16,10 +16,10 @@ Use the terminology in [GLOSSARY.md](../../GLOSSARY.md). Distribution and image-
 - Register the companion `popcaseIntegration()` before the EmDash Astro integration. It completes server-rendered fallback links after page scope is known; public HTML is buffered rather than streamed. See [ADR-0003](../../docs/adr/0003-enhance-fallback-links-after-page-rendering.md).
 - Provide an admin settings page for content type eligibility. Default to all content types, including future types, and disable individual checkboxes while all-types mode is selected.
 - Unchecking all-types mode starts with an empty explicit selection. New types remain disabled in selected mode. Switching modes discards the previous selection; save explicitly to apply changes to existing and new content.
-- Store one plugin-scoped `contentTypes` value: `{ mode: "all" }` or `{ mode: "selected", collections: [...] }`. An empty selection disables Popcase everywhere. Enumerate all registered types, including hidden and non-routable types.
+- Store one plugin-scoped `contentTypes` value: `{ mode: "all", thumbnails: false }` or `{ mode: "selected", collections: [...], thumbnails: false }`, with `thumbnails: true` when enabled. An empty selection disables Popcase everywhere. Enumerate all registered types, including hidden and non-routable types.
 - Replace the former `collections` factory option. Sites without saved settings default to all types, including those excluded by older project configuration. Read settings on each eligible page render; externally cached or prerendered HTML requires cache invalidation or regeneration.
 - Make zoom, image count, and captions individually configurable, enabled by default.
-- Provide Chinese and English interface labels. Select them from the page language, use English for unsupported languages, and allow configuration overrides.
+- Use English interface labels in the admin settings page and public viewer regardless of the page or administrator language. Allow viewer label configuration overrides.
 - Preserve the host's server rendering, image layout, and light/dark presentation. Keep theme changes out of the plugin's installation requirements.
 - Render the image viewer with a dark, partially transparent backdrop in both site themes and light controls. Preview links use the normal link pointer. These presentation choices were confirmed on 2026-10-20 and supersede the original theme-following overlay.
 
@@ -67,7 +67,8 @@ Keep the core HTML sanitization behavior. An isolated HTML block is not part of 
 - Close with the close control, Escape, or a click on the backdrop. Clicking the image itself must remain available for zoom interaction.
 - Show the position/count and the caption stored at that content placement. Keep alternative text separate; do not substitute it as a visible caption.
 - Provide keyboard-operable image entry points, contained dialog focus, and focus restoration to the originating entry point on close.
-- Exclude thumbnail strips, downloads, slideshows, and browser fullscreen controls from the first release.
+- Provide an admin-controlled thumbnail strip at the bottom of the viewer, disabled by default. Save a boolean `thumbnails` alongside content type eligibility in the existing `contentTypes` record; legacy records default to disabled. Saving both preferences is atomic. Thumbnails navigate the same ordered viewing group and load only after opening the viewer.
+- Exclude downloads, slideshows, and browser fullscreen controls.
 
 ## Loading and failure behavior
 
@@ -100,7 +101,7 @@ The plugin's Astro renderers and client entry must be compiled by the host. Vali
 2. Existing post/page fixtures work without resaving. Standard, gallery, column, and inline-HTML images enter the same ordered group; excluded images remain unaffected.
 3. Selecting an occurrence opens the right index, including repeated URLs. Single-image groups and first/last boundaries behave as specified.
 4. Local source images, separate preview/viewer images, direct external images, ordinary navigation links, and ambiguous links follow the specified source and exclusion rules.
-5. Keyboard opening, navigation, zoom, dismissal, focus restoration, and mobile touch interaction work. Chinese/English labels and configuration overrides are observable.
+5. Keyboard opening, navigation, zoom, dismissal, focus restoration, and mobile touch interaction work. English labels and configuration overrides are observable regardless of the page language.
 6. No-JavaScript and simulated module-load failure preserve image-link fallback. A broken image cannot trap the reader in the overlay.
 7. Visual editing retains editing clicks. Saved content type eligibility and the three feature switches take effect.
 8. Desktop/mobile and light/dark visual checks preserve the host's figure layout, captions, article rails, and reading flow. Check current Chromium, Firefox, and Safari behavior, including a mobile/touch viewport.

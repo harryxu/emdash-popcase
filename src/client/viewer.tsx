@@ -4,11 +4,12 @@ import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Counter from "yet-another-react-lightbox/plugins/counter";
 import Captions from "yet-another-react-lightbox/plugins/captions";
+import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
 import lightboxStyles from "yet-another-react-lightbox/styles.css?url";
 import counterStyles from "yet-another-react-lightbox/plugins/counter.css?url";
 import captionStyles from "yet-another-react-lightbox/plugins/captions.css?url";
+import thumbnailStyles from "yet-another-react-lightbox/plugins/thumbnails.css?url";
 import viewerStyles from "./viewer.css?url";
-import { resolveLabels } from "../options.js";
 import type { OpenRequest } from "./group";
 
 let root: Root | undefined;
@@ -17,12 +18,13 @@ let stylesReady: Promise<unknown> | undefined;
 
 export function prepareViewer() {
   const existing = document.querySelectorAll("link[data-popcase-style]");
-  if (stylesReady && existing.length !== 4) {
+  const styles = [lightboxStyles, counterStyles, captionStyles, thumbnailStyles, viewerStyles];
+  if (stylesReady && existing.length !== styles.length) {
     existing.forEach((link) => link.remove());
     stylesReady = undefined;
   }
   if (!stylesReady) {
-    const links = [lightboxStyles, counterStyles, captionStyles, viewerStyles].map((href) => {
+    const links = styles.map((href) => {
       const link = document.createElement("link");
       link.rel = "stylesheet";
       link.href = href;
@@ -45,11 +47,12 @@ export function prepareViewer() {
 
 function Viewer({ request }: { request: OpenRequest }) {
   const [open, setOpen] = useState(true);
-  const labels = resolveLabels(request.language, request.config.labels);
+  const labels = request.config.labels;
   const plugins = [
     ...(request.config.zoom ? [Zoom] : []),
     ...(request.config.counter ? [Counter] : []),
     ...(request.config.captions ? [Captions] : []),
+    ...(request.config.thumbnails ? [Thumbnails] : []),
   ];
   return <Lightbox
     open={open}
@@ -65,6 +68,7 @@ function Viewer({ request }: { request: OpenRequest }) {
     zoom={{ maxZoomPixelRatio: 1 }}
     counter={{ separator: labels.of ?? "of" }}
     captions={{ descriptionMaxLines: 3, showToggle: false }}
+    thumbnails={{ position: "bottom", showToggle: false }}
     render={request.images.length === 1 ? { buttonPrev: () => null, buttonNext: () => null } : undefined}
     on={{ exited: () => {
       disposeViewer();
@@ -86,7 +90,7 @@ export function openViewer(request: OpenRequest) {
   host = document.createElement("dialog");
   host.dataset.popcaseRoot = "";
   host.className = "popcase-dialog";
-  host.setAttribute("aria-label", resolveLabels(request.language, request.config.labels).Lightbox ?? "Lightbox");
+  host.setAttribute("aria-label", request.config.labels.Lightbox ?? "Lightbox");
   host.addEventListener("cancel", (event) => event.preventDefault());
   host.addEventListener("keydown", (event) => {
     if (event.key !== "Tab" || !host) return;

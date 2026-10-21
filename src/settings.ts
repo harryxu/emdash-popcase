@@ -13,11 +13,17 @@ export function parseContentTypes(value: unknown): ContentTypes | null {
 }
 
 export async function readContentTypes(settings: Pick<SettingsAccess, "get">): Promise<ContentTypes> {
-  const value = await settings.get(settingKey);
-  if (value == null) return { mode: "all" };
+  return (await readSettings(settings)).settings;
+}
+
+export async function readSettings(settings: Pick<SettingsAccess, "get">): Promise<{ settings: ContentTypes; thumbnails: boolean }> {
+  const value = await settings.get<Record<string, unknown>>(settingKey);
+  if (value == null) return { settings: { mode: "all" }, thumbnails: false };
   const parsed = parseContentTypes(value);
   if (!parsed) throw new Error("Invalid Popcase content type settings.");
-  return parsed;
+  const thumbnails = "thumbnails" in value ? value.thumbnails : false;
+  if (typeof thumbnails !== "boolean") throw new Error("Invalid Popcase thumbnail settings.");
+  return { settings: parsed, thumbnails };
 }
 
 export function isCollectionEnabled(settings: ContentTypes, collection: string): boolean {
@@ -35,13 +41,15 @@ export const settingsRoute = {
     if (ctx.request.method === "POST") {
       const parsed = parseContentTypes(ctx.input);
       if (!parsed) return { ok: false, error: "INVALID_SETTINGS" };
+      const thumbnails = ctx.input && typeof ctx.input === "object" && "thumbnails" in ctx.input ? ctx.input.thumbnails : false;
+      if (typeof thumbnails !== "boolean") return { ok: false, error: "INVALID_SETTINGS" };
       const known = new Set(collections.map(({ slug }) => slug));
       if (parsed.mode === "selected" && parsed.collections.some((slug) => !known.has(slug))) {
         return { ok: false, error: "UNKNOWN_CONTENT_TYPE" };
       }
-      await ctx.settings.set(settingKey, parsed);
-      return { ok: true, settings: parsed, collections };
+      await ctx.settings.set(settingKey, { ...parsed, thumbnails });
+      return { ok: true, settings: parsed, thumbnails, collections };
     }
-    return { ok: true, settings: await readContentTypes(ctx.settings), collections };
+    return { ok: true, ...await readSettings(ctx.settings), collections };
   },
 } satisfies PluginRoute;

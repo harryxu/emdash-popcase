@@ -7,7 +7,7 @@ const options: PopcaseOptions = { zoom: false, labels: { Close: "Close viewer" }
 const descriptor: PluginDescriptor = popcase(options);
 const integration: AstroIntegration = popcaseIntegration();
 const middleware: MiddlewareHandler = onRequest;
-const config: PopcaseConfig = { zoom: true, counter: true, captions: true, labels: {} };
+const config: PopcaseConfig = { zoom: true, counter: true, captions: true, thumbnails: false, labels: {} };
 createPlugin(options);
 
 // @ts-expect-error Viewer flags must be booleans.

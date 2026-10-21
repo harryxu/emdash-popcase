@@ -2,7 +2,7 @@ export interface PopcaseOptions {
   zoom?: boolean;
   counter?: boolean;
   captions?: boolean;
-  /** Override the labels for the page's Chinese or English interface. */
+  /** Override individual English viewer labels. */
   labels?: Record<string, string>;
 }
 
@@ -10,6 +10,7 @@ export interface PopcaseConfig {
   zoom: boolean;
   counter: boolean;
   captions: boolean;
+  thumbnails: boolean;
   labels: Record<string, string>;
 }
 
@@ -18,6 +19,7 @@ export type ContentTypes = { mode: "all" } | { mode: "selected"; collections: st
 export type SettingsResponse = {
   ok: true;
   settings: ContentTypes;
+  thumbnails: boolean;
   collections: { slug: string; label: string }[];
 } | { ok: false; error: "INVALID_SETTINGS" | "UNKNOWN_CONTENT_TYPE" };
 

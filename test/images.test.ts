@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { imageSource, isImageDestination, safeImageUrl } from "../dist/images.js";
-import { normalizeOptions, resolveLabels } from "../dist/options.js";
+import { normalizeOptions } from "../dist/options.js";
 
 const base = "https://blog.example/posts/story";
 
@@ -26,11 +26,10 @@ test("provider sources are never guessed from their IDs", () => {
   assert.equal(imageSource({ asset: { _ref: "remote-id", provider: "custom", url: "https://images.example/full.jpg" } }, base), "https://images.example/full.jpg");
 });
 
-test("viewer defaults and translated label overrides are independent", () => {
+test("viewer defaults and custom label overrides are independent", () => {
   assert.equal("collections" in normalizeOptions(Object.assign({ zoom: true }, { collections: ["posts"] })), false);
   assert.equal(normalizeOptions({ zoom: false }).zoom, false);
   assert.equal(normalizeOptions({ zoom: false }).captions, true);
-  assert.equal(resolveLabels("zh-CN").Close, "关闭");
-  assert.equal(resolveLabels("zh-TW", { Close: "關閉" }).Close, "關閉");
-  assert.equal(resolveLabels("fr").Close, undefined);
+  assert.deepEqual(normalizeOptions().labels, {});
+  assert.deepEqual(normalizeOptions({ labels: { Close: "Close viewer" } }).labels, { Close: "Close viewer" });
 });
