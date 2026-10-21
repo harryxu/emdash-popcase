@@ -71,5 +71,13 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "typescript": "^6.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harryxu/emdash-popcase.git"
+  },
+  "homepage": "https://github.com/harryxu/emdash-popcase#readme",
+  "bugs": {
+    "url": "https://github.com/harryxu/emdash-popcase/issues"
   }
 }
