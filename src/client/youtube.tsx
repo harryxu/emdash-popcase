@@ -1,4 +1,5 @@
 import { ImageSlide } from "yet-another-react-lightbox";
+import type { CSSProperties } from "react";
 import type { ContainerRect } from "yet-another-react-lightbox";
 import type { ViewerYoutube } from "./group";
 import { youtubeEmbedUrl } from "../youtube.js";
@@ -9,25 +10,21 @@ declare module "yet-another-react-lightbox" {
   }
 }
 
-export function YoutubeSlide({ slide, rect, captions, labels }: {
-  slide: ViewerYoutube; rect: ContainerRect; captions: boolean; labels: Record<string, string>;
+export function YoutubeSlide({ slide, labels }: {
+  slide: ViewerYoutube; labels: Record<string, string>;
 }) {
-  const ratio = slide.shorts ? 9 / 16 : 16 / 9;
-  const availableHeight = Math.max(0, rect.height - (captions && slide.description ? 128 : 48));
-  const width = Math.min(rect.width, availableHeight * ratio);
-  return <div className="popcase-youtube" onPointerDown={(event) => event.stopPropagation()}
+  return <div className="popcase-youtube"
+    style={{ "--popcase-youtube-ratio": slide.shorts ? 9 / 16 : 16 / 9 } as CSSProperties}
+    onPointerDown={(event) => event.stopPropagation()}
     onClick={(event) => event.stopPropagation()}>
     <iframe
       title={slide.alt || (labels["YouTube video"] ?? "YouTube video")}
       src={youtubeEmbedUrl(slide)}
-      width={width}
-      height={width / ratio}
+      width={slide.shorts ? 720 : 1280}
+      height={slide.shorts ? 1280 : 720}
       allow="autoplay; encrypted-media"
       referrerPolicy="strict-origin-when-cross-origin"
     />
-    <a href={slide.src} target="_blank" rel="noopener" className="popcase-youtube-link">
-      {labels["Open on YouTube"] ?? "Open on YouTube"}
-    </a>
   </div>;
 }
 

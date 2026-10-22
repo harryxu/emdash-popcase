@@ -26,3 +26,15 @@ A separate real-provider run used the public video from YouTube's official embed
 Firefox, Safari/WebKit, real mobile devices, screen readers, and every YouTube restriction/error variant were not verified. Touch emulation is not a real-device result. The Shorts fixture uses the sample video through a Shorts URL to exercise portrait framing, rather than providing a separate real Short. Parent keyboard behavior was tested outside the cross-origin player; YouTube owns keyboard handling inside it. Real autoplay remains subject to browser policy and provider availability.
 
 Temporary example and package-consumer servers were stopped after verification. No publishing, tagging, or remote pushing was performed.
+
+## Layout refinement (2026-10-23)
+
+The maintainer requested toolbar clearance, more surrounding space on large displays, and removal of the separate `Open on YouTube` link. This supersedes the earlier external-link assertions above.
+
+The player now fits inside a CSS size container, preserving its aspect ratio and a 1280px width cap. Fluid inner gutters reserve at least 72px above and 24px below the player area, growing with the viewport. Captions occupy their actual flow height, and the thumbnail strip retains its own space. Gutters are inside the player container so all carousel slide boxes keep the same widths.
+
+Re-ran `pnpm test` (47 passed), `pnpm typecheck` (zero diagnostics), `pnpm build:example`, and `NPM_CONFIG_CACHE=/tmp/npm-cache pnpm test:package` successfully. Type and package checks were repeated after the final CSS change. `git diff --check` passed; the active design hook reported no deterministic issues.
+
+Checked 20 Chrome layout combinations: 2560×1440, 1440×900, 1024×768, 390×844, and 844×390; thumbnails enabled/disabled; landscape videos and portrait Shorts with captions. Waited for carousel animations to finish before checking bounds and centering. Every player stayed at least 8px below the toolbar, remained above the thumbnail strip, preserved its aspect ratio, and displayed no external link. At 2560×1440 the landscape frame was 1280×720, with 640px horizontal and 360px vertical margins when thumbnails were disabled. Phone landscape with thumbnails and a caption retained a 132.8px-tall portrait frame rather than collapsing under a fixed caption allowance.
+
+Inspected settled large-screen and phone screenshots. Provider responses were simulated for these layout checks; real playback was not repeated for this styling-only refinement. Firefox, Safari, and real-device limitations above remain. Temporary verification servers were stopped afterward.

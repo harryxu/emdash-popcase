@@ -85,32 +85,30 @@
   }
 }
 
-.popcase-youtube {
-  display: flex;
+.popcase-viewer .yarl__slide:has(.popcase-youtube) {
   flex-direction: column;
+}
+
+.popcase-youtube {
+  flex: 1;
+  align-self: stretch;
+  container-type: size;
+  display: flex;
   align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  /* Add gutters inside the player area so carousel slide widths stay equal. */
+  padding: clamp(56px, calc(8dvh - 16px), 104px) clamp(0px, calc(6dvw - 16px), 144px) clamp(8px, calc(8dvh - 16px), 104px);
   max-width: 100%;
   min-height: 0;
 
   & iframe {
-    flex: 0 1 auto;
+    flex: 0 0 auto;
+    width: min(100cqw, calc(100cqh * var(--popcase-youtube-ratio)), 1280px);
+    height: auto;
+    aspect-ratio: var(--popcase-youtube-ratio);
     max-width: 100%;
     border: 0;
     background: #000;
   }
-}
-
-.popcase-youtube-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding-inline: 12px;
-  color: var(--yarl__color_button);
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  text-underline-offset: 0.2em;
-
-  &:hover { color: var(--yarl__color_button_active); }
-  &:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
 }
