@@ -80,36 +80,17 @@ For inline HTML, choose the HTML block's "Inline" mode:
 
 ## Supported content and limitations
 
-### Playing linked videos
+### Linked video files
 
-On enabled content detail pages, image links and text links to `.mp4`, `.webm`, or `.ogv` files open in the viewer. Query strings and fragments are preserved. Images and linked videos share one viewing group in page order.
+Text and image links to `.mp4`, `.webm`, or `.ogv` files open in the viewer with native playback controls.
 
-- For a video cover, insert an image and set its **Link URL** to the public video file URL. The image becomes the player's poster; its caption is shown in the viewer.
-- For a text entry point, select text and add a link to the public video file URL. No image is required.
-- Videos show native playback controls and attempt to play with sound when opened or navigated to. If the browser blocks autoplay, press Play. Video files are not preloaded by Popcase before opening the viewer.
+### YouTube
 
-Direct video links are detected throughout the eligible page, including ordinary Portable Text paragraphs, columns, and inline HTML. No content block or editor setting is required. Download links and visual-editing surfaces are excluded. Without JavaScript or if the viewer fails to load, links retain their original destinations.
-
-Native `/video` blocks keep their inline players. Vimeo and other unsupported video-site pages, streaming manifests, and extensionless video file URLs are not enhanced. Popcase does not transcode videos or probe arbitrary URLs.
-
-### Playing YouTube links
-
-Ordinary text and image links to `youtube.com/watch?v=VIDEO_ID`, `youtu.be/VIDEO_ID`, and `youtube.com/shorts/VIDEO_ID` open a YouTube player in the same viewer. The `www` and mobile `m.youtube.com` hosts are supported. Detection covers the entire enabled content detail page, including header/footer links, with the same download and editing exclusions as direct videos. No author opt-in or additional setting is needed. Repeated links retain separate positions in the mixed viewing group.
-
-- Preserve start times from `t` or `start` in the query or fragment, using seconds or forms such as `1h2m3s`. Invalid offsets default to zero. Other URL parameters, including playlists and looping, do not configure the player. The complete original link remains available for normal navigation.
-- Only the current YouTube slide connects to `www.youtube-nocookie.com`, after opening or navigating to it. Neighboring slides do not load players. Popcase does not fetch YouTube titles, thumbnails, or dimensions. Privacy-enhanced embedding still connects to YouTube and is not a promise of zero third-party data collection.
-- When thumbnails are enabled, image links use the author's existing preview; text links show a play icon. Existing figure captions remain captions, while image alt text or link text names the entry point. No caption is synthesized from a fetched title.
-- Focus inside the cross-origin player uses YouTube's keyboard behavior. Escape and arrow keys control the viewer when focus is outside the player. On touch devices, swipe in the space outside the embedded player to switch slides; the viewer's previous/next arrows are hidden. The close button remains available, and closing restores focus to the originating link.
-
-Playlist-only links, channel/live entry points, `/live/` and `/embed/` URLs, and existing embedded players are unchanged. Without JavaScript or when the viewer cannot load, the original YouTube link remains usable. See [ADR-0005](./docs/adr/0005-open-youtube-links-with-on-demand-embeds.md).
+Text and image links to YouTube videos and Shorts load a player on demand in the same viewer, preserving linked start times.
 
 ### Images and other content
 
-Popcase supports local media and saved direct image URLs. Provider-specific assets need an explicit source URL.
-
-Featured images, listing cards, avatars, cover backgrounds, isolated iframes, and arbitrary third-party blocks are excluded. Popcase leaves frontend visual editing and the backend editor unchanged.
-
-Popcase wraps unlinked images in links. Check theme selectors that expect images to be direct children of figures. Viewer entry points use `a[data-popcase]`; viewer styles use `.popcase-viewer`.
+Popcase supports local media and direct image URLs, excluding featured images, listing cards, avatars, cover backgrounds, isolated iframes, third-party blocks, and editing surfaces.
 
 ## Development
 
