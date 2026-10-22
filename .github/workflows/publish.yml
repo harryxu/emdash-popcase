@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Set package and plugin versions from the release tag
+      - name: Set package version from the release tag
         run: node scripts/prepare-release.ts "$RELEASE_TAG"
 
       - name: Run tests

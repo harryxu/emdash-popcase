@@ -118,7 +118,7 @@ pnpm dev
 pnpm test:package
 ```
 
-`pnpm build` compiles server code from `src/` into `dist/`, with type declarations and source maps. The host compiles the Astro renderers, React admin page, and browser client from source, so the package includes both `dist` and `src`. Rebuild after changing server code while using a linked checkout.
+`pnpm build` compiles server code from `src/` into `dist/`, with type declarations and source maps. The host compiles the Astro renderers, React admin page, and browser client from source, so the package includes both `dist` and `src`. Rebuild after changing server code while using a linked checkout. Plugin metadata reads its version from `package.json`, which is the single source for both npm and EmDash versions.
 
 `pnpm test:package` installs the tarball in a temporary consumer, checks its files and public types, builds it, and verifies image markup and default content type settings over HTTP. It removes the consumer afterward. CI runs this alongside tests and type checks.
 

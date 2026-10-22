@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import packageMetadata from "../package.json" with { type: "json" };
 import { contribution } from "./helpers.ts";
 import type { AstroIntegration } from "astro";
 import type { ImageMetadata } from "../src/types.ts";
@@ -27,6 +28,8 @@ test("native configuration uses real page identity and stays isolated across con
   assert.equal(values[3], null);
   assert.equal(values[4], null);
   assert.ok(decodeURIComponent(values[5]!.html).includes('"zoom":false'));
+  assert.equal(popcase().version, packageMetadata.version);
+  assert.equal(instance.version, packageMetadata.version);
   assert.equal(popcase().format, "native");
   assert.equal(popcase().id, "popcase");
   assert.equal(popcase().entrypoint, "emdash-popcase");

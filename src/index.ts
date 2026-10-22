@@ -1,4 +1,5 @@
 import { definePlugin, getRequestContext } from "emdash";
+import packageMetadata from "../package.json" with { type: "json" };
 import { normalizeOptions } from "./options.js";
 import { encodeMarker } from "./markers.js";
 import { isCollectionEnabled, readSettings, settingsRoute } from "./settings.js";
@@ -9,7 +10,7 @@ import type { PopcaseOptions } from "./types.js";
 
 export type { PopcaseOptions, PopcaseConfig } from "./types.js";
 
-const version = "0.1.0";
+const { version } = packageMetadata;
 
 export function popcase(options: PopcaseOptions = {}): PluginDescriptor {
   return {
