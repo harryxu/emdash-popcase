@@ -18,7 +18,18 @@ export interface ViewerVideo {
   description: string;
 }
 
-export type ViewerSlide = ViewerImage | ViewerVideo;
+export interface ViewerYoutube {
+  type: "youtube";
+  src: string;
+  videoId: string;
+  start: number;
+  shorts: boolean;
+  poster?: string;
+  alt: string;
+  description: string;
+}
+
+export type ViewerSlide = ViewerImage | ViewerVideo | ViewerYoutube;
 
 export function collectGroup(document: Document) {
   return Array.from(document.querySelectorAll<HTMLAnchorElement>("a[data-popcase]"))

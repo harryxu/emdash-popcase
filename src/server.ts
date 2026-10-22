@@ -2,6 +2,7 @@ import { parseHTML } from "linkedom";
 import { imageSource, isImageDestination, positiveDimension, safeImageUrl } from "./images.js";
 import { decodeMarker } from "./markers.js";
 import { videoSource } from "./videos.js";
+import { youtubeSource } from "./youtube.js";
 
 import type { BlockMetadata, ImageMetadata, PopcaseConfig } from "./types.js";
 
@@ -75,14 +76,16 @@ export function enhanceResponse(html: string, base: string): string {
   for (const anchor of document.querySelectorAll<HTMLAnchorElement>("a[href]")) {
     if (anchor.hasAttribute("data-popcase") || anchor.hasAttribute("download") ||
         anchor.closest('[contenteditable="true"], .emdash-inline-editor, figure.emdash-video, [data-popcase-root]')) continue;
-    const source = videoSource(anchor.getAttribute("href"), base);
-    if (!source) continue;
+    const youtube = youtubeSource(anchor.getAttribute("href"), base);
+    const source = youtube ? undefined : videoSource(anchor.getAttribute("href"), base);
+    if (!source && !youtube) continue;
     const img = anchor.querySelector("img");
     const poster = safeImageUrl(img?.getAttribute("src"), base);
     const alt = img?.getAttribute("alt") ?? anchor.textContent?.trim() ?? "";
     const description = anchor.closest("figure")?.querySelector("figcaption")?.textContent ?? "";
     anchor.setAttribute("data-popcase", JSON.stringify({
-      type: "video", src: source.src, sources: [source], alt, description,
+      ...(youtube ? { type: "youtube", ...youtube } : { type: "video", src: source!.src, sources: [source!] }),
+      alt, description,
       ...(poster ? { poster } : {}),
     }));
     anchor.setAttribute("data-popcase-config", JSON.stringify(config));

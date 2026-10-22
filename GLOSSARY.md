@@ -13,7 +13,7 @@ An overlay for viewing enlarged body images and playing linked videos without le
 _Avoid_: Album manager, media library
 
 **Viewing group**:
-The ordered body images and direct video link occurrences available for navigation in one viewer session. Each eligible content page has one group. Ordinary navigation links and destinations not confirmed to be supported image or video resources are excluded.
+The ordered body images, direct video links, and supported YouTube link occurrences available for navigation in one viewer session. Each eligible content page has one group. Ordinary navigation links and unsupported destinations are excluded.
 _Avoid_: Album, gallery block
 
 **Gallery block**:
@@ -37,3 +37,6 @@ An image or text link to a video file itself, rather than a page hosting a playe
 
 **Video poster**:
 The preview image representing a linked video before playback in the viewer.
+
+**YouTube link**:
+A text or image link to an individual YouTube video or Short. It is distinct from a direct video link and from an existing embedded player.

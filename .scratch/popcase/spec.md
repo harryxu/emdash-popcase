@@ -25,6 +25,16 @@ Use the terminology in [GLOSSARY.md](../../GLOSSARY.md). Distribution and image-
 
 ## Content scope
 
+### YouTube links (2026-10-23)
+
+Extend the direct-video scope below to ordinary text/image links for single YouTube videos: exact `youtube.com`, `www.youtube.com`, or `m.youtube.com` hosts with `/watch?v=VIDEO_ID` or `/shorts/VIDEO_ID`, and `youtu.be/VIDEO_ID`. Validate video IDs; do not classify lookalike hosts, credential-bearing URLs, playlists without a video, channel/live entry points, `/live/` or `/embed/` URLs. Existing iframes remain unchanged. Detection uses the entire eligible completed page, including header/footer, retaining download and editing exclusions. No additional setting or editor markup is required. This supersedes the YouTube portion of the video-site exclusion below; see [ADR-0005](../../docs/adr/0005-open-youtube-links-with-on-demand-embeds.md).
+
+YouTube occurrences join images and direct videos in document order, retaining repeated placements and finite boundaries. Load a privacy-enhanced `youtube-nocookie.com` iframe only for the current, open slide, removing it on navigation or dismissal. Do not connect, preconnect, fetch provider metadata, or preload neighboring players. Attempt inline audible autoplay, retaining manual controls if blocked, and disable fullscreen. Reopening starts again at the link's offset. Accept nonnegative integer seconds and h/m/s forms from query/fragment `t` and `start`; ignore other player/list parameters while retaining the complete original destination.
+
+Use author-provided images for thumbnails, otherwise a generic play icon. Preserve figure captions and use alt/link text for accessible naming; do not fetch titles or thumbnail images. Fit regular players at 16:9 and Shorts at 9:16 without cropping. Always display an English, label-overridable `Open on YouTube` link outside the player. Keep provider error UI without automatic redirects. Preserve modified-click, no-JavaScript and failed-viewer navigation. Retain the origin referrer required by YouTube; document host CSP requirements and that privacy-enhanced mode still contacts a third party.
+
+Keep close/navigation controls accessible outside the iframe and restore trigger focus on dismissal. Parent Escape/arrow handling applies when focus is outside the cross-origin player; inside it YouTube owns keyboard events. Verify lazy loading, mixed navigation, player removal on close/switch, fallback, thumbnails, viewport fitting, and focus behavior in available browsers, recording network/browser gaps honestly.
+
 ### Direct video links (2026-10-22)
 
 On eligible content detail pages, enhance image links and text links whose URL pathname ends in `.mp4`, `.webm`, or `.ogv`. Preserve URL queries and fragments, fallback links, modified-click navigation, and placement order. Images provide posters without assigning image dimensions to videos. Mixed image/video groups retain repeated occurrences. Inject the bootstrap independently of image renderers so text-only content works.

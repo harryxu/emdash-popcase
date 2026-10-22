@@ -10,7 +10,7 @@ function initialize() {
     const labels = config.labels;
     anchor.setAttribute("role", "button");
     anchor.setAttribute("aria-haspopup", "dialog");
-    const label = slide.type === "video" ? "Open video" : "Open image";
+    const label = slide.type === "video" || slide.type === "youtube" ? "Open video" : "Open image";
     anchor.setAttribute("aria-label", `${labels[label] ?? label}${slide.alt ? `: ${slide.alt}` : ""}`);
   }
 }

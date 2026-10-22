@@ -11,6 +11,17 @@ const image = (key: string, name = "diagram", caption = "A diagram caption") => 
 });
 const content = scenario === "single" || scenario === "nojs" || scenario === "fail"
   ? [image("Single diagram")]
+  : ["youtube-text", "youtube-nojs", "youtube-fail"].includes(scenario) ? [{
+    _type: "block", _key: "youtube-text", style: "normal",
+    markDefs: [{ _key: "youtube-link", _type: "link", href: "https://www.youtube.com/watch?v=M7lc1UVf-VE&t=30" }],
+    children: [{ _type: "span", _key: "youtube-span", text: "Watch on YouTube", marks: ["youtube-link"] }],
+  }]
+  : scenario === "youtube" ? [
+    { _type: "htmlBlock", _key: "youtube-html", isolated: false, html: '<p><a href="https://youtu.be/M7lc1UVf-VE?t=1m30s&list=ignored">YouTube demo</a></p>' },
+    { ...image("Shorts preview", "preview", "Author-provided caption"), link: { href: "https://www.youtube.com/shorts/M7lc1UVf-VE" } },
+    image("Image beside YouTube"),
+    { _type: "htmlBlock", _key: "mixed-video", isolated: false, html: '<p><a href="/__popcase-videos/demo.mp4">Direct video</a> <a href="https://youtu.be/M7lc1UVf-VE">Repeated YouTube demo</a></p>' },
+  ]
   : scenario === "video-text" ? [{
     _type: "block", _key: "video-text", style: "normal",
     markDefs: [{ _key: "video-link", _type: "link", href: "/__popcase-videos/demo.mp4" }],
@@ -37,8 +48,8 @@ const content = scenario === "single" || scenario === "nojs" || scenario === "fa
     { ...image("Unavailable image"), link: { href: "/__popcase-images/missing.jpg" } },
   ];
 
-if (scenario === "nojs") Astro.response.headers.set("Content-Security-Policy", "script-src 'none'");
-if (scenario === "fail") {
+if (scenario === "nojs" || scenario === "youtube-nojs") Astro.response.headers.set("Content-Security-Policy", "script-src 'none'");
+if (scenario === "fail" || scenario === "youtube-fail") {
   const files = await readdir("dist/client/_astro").catch(() => []);
   const scripts = files.filter((name) => name.endsWith(".js") && !/^(viewer|react-dom|jsx-runtime|client)\./.test(name));
   Astro.response.headers.set("Content-Security-Policy", `script-src ${scripts.map((name) => new URL(`/_astro/${name}`, Astro.url).href).join(" ") || "'none'"}`);

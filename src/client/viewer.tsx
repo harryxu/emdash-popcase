@@ -12,6 +12,7 @@ import captionStyles from "yet-another-react-lightbox/plugins/captions.css?url";
 import thumbnailStyles from "yet-another-react-lightbox/plugins/thumbnails.css?url";
 import viewerStyles from "./viewer.css?url";
 import type { OpenRequest } from "./group";
+import { YoutubeSlide, YoutubeThumbnail } from "./youtube";
 
 let root: Root | undefined;
 let host: HTMLDialogElement | undefined;
@@ -75,7 +76,15 @@ function Viewer({ request }: { request: OpenRequest }) {
     captions={{ descriptionMaxLines: 3, showToggle: false }}
     thumbnails={{ position: "bottom", showToggle: false }}
     video={{ controls: true, playsInline: true, autoPlay: true, preload: "none" }}
-    render={request.slides.length === 1 ? { buttonPrev: () => null, buttonNext: () => null } : undefined}
+    render={{
+      ...(request.slides.length === 1 ? { buttonPrev: () => null, buttonNext: () => null } : {}),
+      slide: ({ slide, offset, rect }) => slide.type === "youtube"
+        ? (open && offset === 0
+          ? <YoutubeSlide slide={slide} rect={rect} captions={request.config.captions} labels={labels} />
+          : <div />)
+        : undefined,
+      thumbnail: ({ slide, rect }) => slide.type === "youtube" ? <YoutubeThumbnail slide={slide} rect={rect} /> : undefined,
+    }}
     on={{ exited: () => {
       disposeViewer();
       if (request.trigger.isConnected) request.trigger.focus({ preventScroll: true });
@@ -106,7 +115,7 @@ export function openViewer(request: OpenRequest) {
   host.addEventListener("keydown", (event) => {
     if (event.key !== "Tab" || !host) return;
     const controls = Array.from(host.querySelectorAll<HTMLElement>(
-      'button:not([disabled]), a[href], video[controls], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      'button:not([disabled]), a[href], video[controls], iframe, input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
     )).filter((element) => element.tabIndex >= 0 && element.getClientRects().length > 0 &&
       getComputedStyle(element).visibility !== "hidden" && !element.closest("[inert]"));
     const first = controls[0];

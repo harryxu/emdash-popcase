@@ -61,7 +61,7 @@ try {
     await setTimeout(200);
   }
   assert.ok(ready, "Consumer server did not become ready.");
-  for (const [query, expected] of [["", 8], ["?case=single", 1], ["?case=new-type", 8], ["?case=excluded", 0], ["?case=video-text", 1], ["?case=video", 3]]) {
+  for (const [query, expected] of [["", 8], ["?case=single", 1], ["?case=new-type", 8], ["?case=excluded", 0], ["?case=video-text", 1], ["?case=video", 3], ["?case=youtube-text", 1], ["?case=youtube", 5]]) {
     const response = await fetch(`${origin}/${query}`);
     assert.equal(response.status, 200);
     const html = await response.text();
@@ -72,6 +72,11 @@ try {
       assert.ok(/<script[^>]+src=/.test(html), "Text-only content must load the viewer bootstrap.");
     }
     if (query === "?case=video") assert.match(html, /<figure\b[^>]*class="emdash-video"/);
+    if (String(query).includes("youtube")) {
+      assert.ok(html.includes("Open video:"));
+      assert.ok(/<script[^>]+src=/.test(html), "YouTube-only content must load the viewer bootstrap.");
+      assert.ok(!/<iframe\b/.test(html), "YouTube players must not load before interaction.");
+    }
   }
   console.log("Packed plugin installs, builds, and renders independently.");
 } finally {

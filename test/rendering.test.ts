@@ -50,8 +50,7 @@ test("inline HTML enhances only image destination links and treats captions as t
   const entries = collectGroup(document);
   assert.equal(entries.length, 1);
   assert.equal(entries[0].slide.description, "A & B <script>");
-  assert.notEqual(entries[0].slide.type, "video");
-  if (entries[0].slide.type === "video") throw new Error("Expected an image slide.");
+  if (entries[0].slide.type && entries[0].slide.type !== "image") throw new Error("Expected an image slide.");
   assert.equal(entries[0].slide.width, undefined);
 });
 

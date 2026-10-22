@@ -1,6 +1,6 @@
 # emdash-popcase
 
-A native EmDash plugin for viewing body images and playing linked video files with [Yet Another React Lightbox](https://yet-another-react-lightbox.com/).
+A native EmDash plugin for viewing body images and playing linked video files and YouTube videos with [Yet Another React Lightbox](https://yet-another-react-lightbox.com/).
 
 Click an image to open the viewer. Images, galleries, supported columns, and linked images in inline HTML share one group per content page. Existing entries work without resaving.
 
@@ -94,7 +94,20 @@ On enabled content detail pages, image links and text links to `.mp4`, `.webm`, 
 
 Direct video links are detected throughout the eligible page, including ordinary Portable Text paragraphs, columns, and inline HTML. No content block or editor setting is required. Download links and visual-editing surfaces are excluded. Without JavaScript or if the viewer fails to load, links retain their original destinations.
 
-Native `/video` blocks keep their inline players. YouTube, Vimeo and other video-site pages, streaming manifests, and extensionless video URLs are not enhanced. Use a browser-playable direct file URL; Popcase does not transcode videos or probe arbitrary URLs.
+Native `/video` blocks keep their inline players. Vimeo and other unsupported video-site pages, streaming manifests, and extensionless video file URLs are not enhanced. Popcase does not transcode videos or probe arbitrary URLs.
+
+### Playing YouTube links
+
+Ordinary text and image links to `youtube.com/watch?v=VIDEO_ID`, `youtu.be/VIDEO_ID`, and `youtube.com/shorts/VIDEO_ID` open a YouTube player in the same viewer. The `www` and mobile `m.youtube.com` hosts are supported. Detection covers the entire enabled content detail page, including header/footer links, with the same download and editing exclusions as direct videos. No author opt-in or additional setting is needed. Repeated links retain separate positions in the mixed viewing group.
+
+- Preserve start times from `t` or `start` in the query or fragment, using seconds or forms such as `1h2m3s`. Invalid offsets default to zero. Other URL parameters, including playlists and looping, do not configure the player. The complete original link remains available for normal navigation.
+- Only the current YouTube slide connects to `www.youtube-nocookie.com`, after opening or navigating to it. Neighboring slides do not load players. Popcase does not fetch YouTube titles, thumbnails, or dimensions. Privacy-enhanced embedding still connects to YouTube and is not a promise of zero third-party data collection.
+- Players attempt audible autoplay with inline controls. If autoplay is blocked, press Play. Switching away or closing removes the player; returning starts at the link's specified time. Fullscreen is disabled. Regular videos use a 16:9 frame and Shorts use 9:16, fitting the window without cropping.
+- When thumbnails are enabled, image links use the author's existing preview; text links show a play icon. Existing figure captions remain captions, while image alt text or link text names the entry point. No caption is synthesized from a fetched title.
+- An **Open on YouTube** link is always visible outside the player (override with `labels["Open on YouTube"]`). Unavailable, restricted, blocked, or non-embeddable videos retain YouTube's error UI without automatically navigating away. Host CSP rules must permit `frame-src https://www.youtube-nocookie.com`; the iframe uses `strict-origin-when-cross-origin` to retain YouTube's required origin referrer.
+- Focus inside the cross-origin player uses YouTube's keyboard behavior. Escape and arrow keys control the viewer when focus is outside the player. Outer close/navigation buttons remain available, and closing restores focus to the originating link.
+
+Playlist-only links, channel/live entry points, `/live/` and `/embed/` URLs, and existing embedded players are unchanged. Without JavaScript or when the viewer cannot load, the original YouTube link remains usable. See [ADR-0005](./docs/adr/0005-open-youtube-links-with-on-demand-embeds.md).
 
 ### Images and other content
 
@@ -125,6 +138,8 @@ pnpm test:package
 The example supports `?case=single`, `?case=new-type`, `?case=excluded`, `?case=nojs`, and `?case=fail`. Test the failed-module scenario in a production build.
 
 Use `?case=video` for linked covers, text links, mixed image/video navigation, and the unchanged native player. Use `?case=video-text` to verify a page with no images. The included silent video is a two-second FFmpeg `testsrc2` pattern encoded as H.264, with no external media dependency.
+
+Use `?case=youtube` for mixed YouTube/Shorts/image/file navigation and repeated YouTube links, or `?case=youtube-text` for a text-only entry. `?case=youtube-nojs` and `?case=youtube-fail` exercise fallback links (the latter requires a production build). YouTube URLs use the video ID from YouTube's official embed example; the Shorts link exercises portrait framing rather than supplying a separate Short. External playback requires access to YouTube and a video that permits embedding. Package HTTP verification does not require YouTube access.
 
 To keep a consumer for manual inspection:
 
