@@ -94,7 +94,7 @@ Popcase supports local media and direct image URLs, excluding featured images, l
 
 ## Development
 
-Use Node.js 24+ and pnpm 12. The self-contained `example/` site has generated diagrams, its own SQLite database, and uploads directory.
+Use Node.js 24+ and pnpm 12 with the self-contained `example/` site.
 
 ```sh
 pnpm install
@@ -106,25 +106,11 @@ pnpm dev
 pnpm test:package
 ```
 
-`pnpm build` compiles server code from `src/` into `dist/`, with type declarations and source maps. The host compiles the Astro renderers, React admin page, and browser client from source, so the package includes both `dist` and `src`. Rebuild after changing server code while using a linked checkout. Plugin metadata reads its version from `package.json`, which is the single source for both npm and EmDash versions.
+`pnpm test:package` installs the tarball in a temporary consumer, checks public types, builds it, and verifies rendered output over HTTP; CI also runs tests and type checks.
 
-`pnpm test:package` installs the tarball in a temporary consumer, checks its files and public types, builds it, and verifies image markup and default content type settings over HTTP. It removes the consumer afterward. CI runs this alongside tests and type checks.
+Use `?case=video` or `?case=youtube` for video examples, and `?case=nojs` or `?case=fail` for fallback checks; the failed-module case requires a production build.
 
-The example supports `?case=single`, `?case=new-type`, `?case=excluded`, `?case=nojs`, and `?case=fail`. Test the failed-module scenario in a production build.
-
-Use `?case=video` for linked covers, text links, mixed image/video navigation, and the unchanged native player. Use `?case=video-text` to verify a page with no images. The included silent video is a two-second FFmpeg `testsrc2` pattern encoded as H.264, with no external media dependency.
-
-Use `?case=youtube` for mixed YouTube/Shorts/image/file navigation and repeated YouTube links, or `?case=youtube-text` for a text-only entry. `?case=youtube-nojs` and `?case=youtube-fail` exercise fallback links (the latter requires a production build). YouTube URLs use the video ID from YouTube's official embed example; the Shorts link exercises portrait framing rather than supplying a separate Short. External playback requires access to YouTube and a video that permits embedding. Package HTTP verification does not require YouTube access.
-
-To keep a consumer for manual inspection:
-
-```sh
-pnpm build
-npm pack --ignore-scripts --pack-destination /tmp
-node test/prepare-host.ts /tmp/emdash-popcase-0.1.0.tgz
-```
-
-Install dependencies and run `pnpm dev` or `pnpm build` in the printed directory.
+Rebuild after server code changes when using a linked checkout.
 
 ## Using a local checkout
 
