@@ -1,8 +1,8 @@
 # emdash-popcase
 
-A native EmDash plugin for viewing body images and playing linked video files and YouTube videos with [Yet Another React Lightbox](https://yet-another-react-lightbox.com/).
+A native EmDash lightbox plugin with [Yet Another React Lightbox](https://yet-another-react-lightbox.com/).
 
-Click an image to open the viewer. Images, galleries, supported columns, and linked images in inline HTML share one group per content page. Existing entries work without resaving.
+Popcase supports images, linked videos, and YouTube links in the same viewer.
 
 ![Screenshot 1](images/screenshot1.jpg)
 
