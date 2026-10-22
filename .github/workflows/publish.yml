@@ -1,31 +1,37 @@
 name: Publish to npm
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version without v, for example 0.1.6 (an existing tag will be reused)'
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: npm-release-${{ github.event.release.tag_name }}
+  group: npm-release
   cancel-in-progress: false
 
 jobs:
   publish:
-    if: github.repository == 'harryxu/emdash-popcase' && !github.event.release.prerelease
+    if: github.repository == 'harryxu/emdash-popcase' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
-      contents: read
+      contents: write
       id-token: write
     env:
-      RELEASE_TAG: ${{ github.event.release.tag_name }}
+      RELEASE_VERSION: ${{ inputs.version }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.release.tag_name }}
-          persist-credentials: false
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          persist-credentials: true
 
       - uses: actions/setup-node@v7
         with:
@@ -33,15 +39,21 @@ jobs:
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
 
+      # Keep the current release tools available after checking out an older tag.
+      - name: Save release tools
+        run: |
+          mkdir -p "$RUNNER_TEMP/popcase-release-tools"
+          cp scripts/release.ts scripts/prepare-release.ts "$RUNNER_TEMP/popcase-release-tools/"
+
+      - name: Select an existing tag or prepare a new version
+        run: node "$RUNNER_TEMP/popcase-release-tools/release.ts" select "$RUNNER_TEMP/popcase-release.json" "$RELEASE_VERSION" "$DEFAULT_BRANCH"
+
       - uses: pnpm/action-setup@v6
         with:
           version: 12.14.0
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Set package version from the release tag
-        run: node scripts/prepare-release.ts "$RELEASE_TAG"
 
       - name: Run tests
         run: pnpm test
@@ -52,8 +64,44 @@ jobs:
       - name: Verify the packed package in a fresh consumer
         run: pnpm test:package
 
+      - name: Verify tagged package and runtime versions
+        run: node "$RUNNER_TEMP/popcase-release-tools/release.ts" verify "$RUNNER_TEMP/popcase-release.json"
+
+      - name: Commit the version and create a tag, or verify the existing tag
+        run: node "$RUNNER_TEMP/popcase-release-tools/release.ts" push-tag "$RUNNER_TEMP/popcase-release.json"
+
       - name: Pack the release
         run: npm pack --ignore-scripts
 
+      - name: Check npm and GitHub publication status
+        id: publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node "$RUNNER_TEMP/popcase-release-tools/release.ts" status "$RUNNER_TEMP/popcase-release.json"
+
       - name: Publish with npm trusted publishing
-        run: npm publish "./emdash-popcase-${RELEASE_TAG#v}.tgz" --access public --provenance --ignore-scripts
+        if: steps.publication.outputs.npm_published != 'true'
+        run: npm publish "./emdash-popcase-${RELEASE_VERSION}.tgz" --access public --provenance --ignore-scripts
+
+      - name: Create the GitHub Release with its package
+        if: steps.publication.outputs.release_exists != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "v${RELEASE_VERSION}" "./emdash-popcase-${RELEASE_VERSION}.tgz" --verify-tag --generate-notes --title "v${RELEASE_VERSION}"
+
+      - name: Add a missing package to the existing GitHub Release
+        if: steps.publication.outputs.release_exists == 'true' && steps.publication.outputs.asset_exists != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "v${RELEASE_VERSION}" "./emdash-popcase-${RELEASE_VERSION}.tgz"
+
+      - name: Publish an existing draft Release
+        if: steps.publication.outputs.release_exists == 'true' && steps.publication.outputs.release_draft == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "v${RELEASE_VERSION}" --draft=false
+
+      - name: Summarize the release
+        run: |
+          echo "Released emdash-popcase ${RELEASE_VERSION}." >> "$GITHUB_STEP_SUMMARY"
+          echo "Tag: v${RELEASE_VERSION}. npm already published: ${{ steps.publication.outputs.npm_published }}." >> "$GITHUB_STEP_SUMMARY"
