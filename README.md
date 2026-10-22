@@ -49,10 +49,6 @@ popcase({
 });
 ```
 
-Zoom, the image counter, and captions are enabled by default. Labels use English; override them with `labels`.
-
-The viewer supports mouse, keyboard, and touch navigation. It stops at the first and last image. Captions come from each image's placement in the content.
-
 ## Admin settings
 
 Open Popcase in the admin sidebar or visit `/_emdash/admin/plugins/popcase/settings`. Requires `plugins:manage`.
@@ -103,7 +99,7 @@ Ordinary text and image links to `youtube.com/watch?v=VIDEO_ID`, `youtu.be/VIDEO
 - Preserve start times from `t` or `start` in the query or fragment, using seconds or forms such as `1h2m3s`. Invalid offsets default to zero. Other URL parameters, including playlists and looping, do not configure the player. The complete original link remains available for normal navigation.
 - Only the current YouTube slide connects to `www.youtube-nocookie.com`, after opening or navigating to it. Neighboring slides do not load players. Popcase does not fetch YouTube titles, thumbnails, or dimensions. Privacy-enhanced embedding still connects to YouTube and is not a promise of zero third-party data collection.
 - When thumbnails are enabled, image links use the author's existing preview; text links show a play icon. Existing figure captions remain captions, while image alt text or link text names the entry point. No caption is synthesized from a fetched title.
-- Focus inside the cross-origin player uses YouTube's keyboard behavior. Escape and arrow keys control the viewer when focus is outside the player. Outer close/navigation buttons remain available, and closing restores focus to the originating link.
+- Focus inside the cross-origin player uses YouTube's keyboard behavior. Escape and arrow keys control the viewer when focus is outside the player. On touch devices, swipe in the space outside the embedded player to switch slides; the viewer's previous/next arrows are hidden. The close button remains available, and closing restores focus to the originating link.
 
 Playlist-only links, channel/live entry points, `/live/` and `/embed/` URLs, and existing embedded players are unchanged. Without JavaScript or when the viewer cannot load, the original YouTube link remains usable. See [ADR-0005](./docs/adr/0005-open-youtube-links-with-on-demand-embeds.md).
 

@@ -15,7 +15,6 @@ export function YoutubeSlide({ slide, labels }: {
 }) {
   return <div className="popcase-youtube"
     style={{ "--popcase-youtube-ratio": slide.shorts ? 9 / 16 : 16 / 9 } as CSSProperties}
-    onPointerDown={(event) => event.stopPropagation()}
     onClick={(event) => event.stopPropagation()}>
     <iframe
       title={slide.alt || (labels["YouTube video"] ?? "YouTube video")}

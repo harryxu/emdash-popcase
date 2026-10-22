@@ -80,7 +80,7 @@ Keep the core HTML sanitization behavior. An isolated HTML block is not part of 
 - Open at the selected occurrence.
 - Stop at the first and last images rather than wrapping.
 - Hide navigation controls for a single-image group.
-- Support navigation buttons, keyboard navigation, and touch swipes.
+- Support navigation buttons, keyboard navigation, and touch swipes. Hide previous/next arrow buttons for coarse primary pointers, retaining mouse-device arrows and touch swipes. YouTube player surroundings must pass swipe gestures through to the viewer; interaction inside the iframe belongs to YouTube.
 - Support zoom controls, double-click/double-tap, pinch zoom, and panning when enlarged.
 - Close with the close control, Escape, or a click on the backdrop. Clicking the image itself must remain available for zoom interaction.
 - Show the position/count and the caption stored at that content placement. Keep alternative text separate; do not substitute it as a visible caption.

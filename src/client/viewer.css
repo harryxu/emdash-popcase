@@ -85,6 +85,13 @@
   }
 }
 
+@media (pointer: coarse) {
+  .popcase-viewer .yarl__navigation_prev,
+  .popcase-viewer .yarl__navigation_next {
+    display: none;
+  }
+}
+
 .popcase-viewer .yarl__slide:has(.popcase-youtube) {
   flex-direction: column;
 }
