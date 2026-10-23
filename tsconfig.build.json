@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
+    "jsx": "react-jsx",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
@@ -16,5 +17,10 @@
     "types": ["astro/client"],
     "noEmitOnError": true
   },
-  "files": ["src/index.ts", "src/middleware.ts"]
+  "files": [
+    "src/index.ts",
+    "src/middleware.ts",
+    "src/exif/index.tsx",
+    "src/client/photo-information.ts"
+  ]
 }

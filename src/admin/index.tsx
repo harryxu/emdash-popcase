@@ -11,6 +11,7 @@ export function SettingsPage() {
   const [draft, setDraft] = useState<ContentTypes>({ mode: "all" });
   const [thumbnails, setThumbnails] = useState(false);
   const [videoAutoplay, setVideoAutoplay] = useState(true);
+  const [photoInformation, setPhotoInformation] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<"load" | "save">();
@@ -27,6 +28,7 @@ export function SettingsPage() {
       setData(result);
       setThumbnails(result.thumbnails);
       setVideoAutoplay(result.videoAutoplay);
+      setPhotoInformation(result.photoInformation);
       setDraft(
         result.settings.mode === "all"
           ? result.settings
@@ -65,7 +67,7 @@ export function SettingsPage() {
         await apiFetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...draft, thumbnails, videoAutoplay }),
+          body: JSON.stringify({ ...draft, thumbnails, videoAutoplay, photoInformation }),
         }),
       );
       if (!result.ok) throw new Error("Failed to save Popcase settings.");
@@ -73,6 +75,7 @@ export function SettingsPage() {
       setDraft(result.settings);
       setThumbnails(result.thumbnails);
       setVideoAutoplay(result.videoAutoplay);
+      setPhotoInformation(result.photoInformation);
       setSaved(true);
     } catch {
       setError("save");
@@ -168,6 +171,24 @@ export function SettingsPage() {
             />
             <p className="text-sm text-kumo-subtle">
               Show clickable thumbnails at the bottom of the image viewer.
+            </p>
+          </fieldset>
+          <fieldset disabled={saving} className="space-y-3">
+            <legend className="mb-3 font-medium text-kumo-default">Photo information</legend>
+            <Checkbox
+              name="photoInformation"
+              label="Show photo information"
+              checked={photoInformation}
+              disabled={saving}
+              onCheckedChange={(checked) => {
+                setPhotoInformation(checked === true);
+                setSaved(false);
+                setError(undefined);
+              }}
+            />
+            <p className="text-sm text-kumo-subtle">
+              Let readers view the camera, lens, and exposure details recorded in an image.
+              Information is read only when a reader opens the panel.
             </p>
           </fieldset>
           <fieldset disabled={saving} className="space-y-3">

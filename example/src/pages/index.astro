@@ -15,132 +15,186 @@ const image = (key: string, name = "diagram", caption = "A diagram caption") => 
   height: name === "detail" ? 2000 : 1600,
 });
 const content =
-  scenario === "single" || scenario === "nojs" || scenario === "fail"
-    ? [image("Single diagram")]
-    : ["youtube-text", "youtube-nojs", "youtube-fail"].includes(scenario)
-      ? [
-          {
-            _type: "block",
-            _key: "youtube-text",
-            style: "normal",
-            markDefs: [
-              {
-                _key: "youtube-link",
-                _type: "link",
-                href: "https://www.youtube.com/watch?v=M7lc1UVf-VE&t=30",
-              },
-            ],
-            children: [
-              {
-                _type: "span",
-                _key: "youtube-span",
-                text: "Watch on YouTube",
-                marks: ["youtube-link"],
-              },
-            ],
-          },
-        ]
-      : scenario === "youtube"
+  scenario === "exif"
+    ? [
+        {
+          ...image(
+            "Photography information",
+            "preview",
+            "Synthetic image with camera and exposure information",
+          ),
+          asset: { _ref: "photo", url: "/__popcase-images/photo.jpg" },
+          width: 1200,
+          height: 800,
+        },
+        ...["png", "webp", "avif"].map((extension) => ({
+          ...image(
+            `EXIF ${extension.toUpperCase()}`,
+            "preview",
+            `Synthetic ${extension.toUpperCase()} with EXIF`,
+          ),
+          asset: { _ref: `photo-${extension}`, url: `/__popcase-images/photo.${extension}` },
+          width: 1200,
+          height: 800,
+        })),
+        {
+          ...image(
+            "Different preview metadata",
+            "preview",
+            "Information belongs to the viewer image",
+          ),
+          asset: { _ref: "photo-preview", url: "/__popcase-images/photo-preview.jpg" },
+          link: { href: "/__popcase-images/photo.jpg" },
+          width: 480,
+          height: 320,
+        },
+        {
+          ...image("No photo information", "preview", "Synthetic image with metadata removed"),
+          asset: { _ref: "photo-empty", url: "/__popcase-images/photo-empty.jpg" },
+          width: 1200,
+          height: 800,
+        },
+        image("Unsupported SVG format"),
+        {
+          _type: "htmlBlock",
+          _key: "photo-video",
+          isolated: false,
+          html: '<p><a href="/__popcase-videos/demo.mp4">Video between photographs</a></p>',
+        },
+        {
+          ...image("Unavailable photo information"),
+          link: { href: "/__popcase-images/missing.jpg" },
+        },
+      ]
+    : scenario === "single" || scenario === "nojs" || scenario === "fail"
+      ? [image("Single diagram")]
+      : ["youtube-text", "youtube-nojs", "youtube-fail"].includes(scenario)
         ? [
             {
-              _type: "htmlBlock",
-              _key: "youtube-html",
-              isolated: false,
-              html: '<p><a href="https://youtu.be/M7lc1UVf-VE?t=1m30s&list=ignored">YouTube demo</a></p>',
-            },
-            {
-              ...image("Shorts preview", "preview", "Author-provided caption"),
-              link: { href: "https://www.youtube.com/shorts/M7lc1UVf-VE" },
-            },
-            image("Image beside YouTube"),
-            {
-              _type: "htmlBlock",
-              _key: "mixed-video",
-              isolated: false,
-              html: '<p><a href="/__popcase-videos/demo.mp4">Direct video</a> <a href="https://youtu.be/M7lc1UVf-VE">Repeated YouTube demo</a></p>',
+              _type: "block",
+              _key: "youtube-text",
+              style: "normal",
+              markDefs: [
+                {
+                  _key: "youtube-link",
+                  _type: "link",
+                  href: "https://www.youtube.com/watch?v=M7lc1UVf-VE&t=30",
+                },
+              ],
+              children: [
+                {
+                  _type: "span",
+                  _key: "youtube-span",
+                  text: "Watch on YouTube",
+                  marks: ["youtube-link"],
+                },
+              ],
             },
           ]
-        : scenario === "video-text"
+        : scenario === "youtube"
           ? [
               {
-                _type: "block",
-                _key: "video-text",
-                style: "normal",
-                markDefs: [
-                  { _key: "video-link", _type: "link", href: "/__popcase-videos/demo.mp4" },
-                ],
-                children: [
-                  {
-                    _type: "span",
-                    _key: "video-span",
-                    text: "Watch the demo",
-                    marks: ["video-link"],
-                  },
-                ],
+                _type: "htmlBlock",
+                _key: "youtube-html",
+                isolated: false,
+                html: '<p><a href="https://youtu.be/M7lc1UVf-VE?t=1m30s&list=ignored">YouTube demo</a></p>',
+              },
+              {
+                ...image("Shorts preview", "preview", "Author-provided caption"),
+                link: { href: "https://www.youtube.com/shorts/M7lc1UVf-VE" },
+              },
+              image("Image beside YouTube"),
+              {
+                _type: "htmlBlock",
+                _key: "mixed-video",
+                isolated: false,
+                html: '<p><a href="/__popcase-videos/demo.mp4">Direct video</a> <a href="https://youtu.be/M7lc1UVf-VE">Repeated YouTube demo</a></p>',
               },
             ]
-          : scenario === "video"
+          : scenario === "video-text"
             ? [
                 {
-                  ...image("Video preview", "preview", "Synthetic video demo"),
-                  link: { href: "/__popcase-videos/demo.mp4" },
-                },
-                {
-                  _type: "htmlBlock",
-                  _key: "video-html",
-                  isolated: false,
-                  html: '<p><a href="/__popcase-videos/demo.mp4?repeat=1">Watch again</a></p>',
-                },
-                image("Image beside video"),
-                {
-                  _type: "video",
-                  _key: "native-video",
-                  asset: { _ref: "demo-video", url: "/__popcase-videos/demo.mp4" },
-                  caption: "Native inline video",
-                },
-              ]
-            : [
-                image("First diagram"),
-                {
-                  ...image("Separate preview", "preview", "A different viewer source"),
-                  width: 480,
-                  height: 320,
-                  link: { href: url("detail") },
-                },
-                {
-                  _type: "gallery",
-                  _key: "gallery",
-                  columns: 2,
-                  images: [image("Gallery first"), image("Gallery second", "detail")],
-                },
-                {
-                  _type: "columns",
-                  _key: "columns",
-                  columns: [
+                  _type: "block",
+                  _key: "video-text",
+                  style: "normal",
+                  markDefs: [
+                    { _key: "video-link", _type: "link", href: "/__popcase-videos/demo.mp4" },
+                  ],
+                  children: [
                     {
-                      _type: "column",
-                      _key: "col-a",
-                      content: [image("Column diagram", "detail")],
-                    },
-                    {
-                      _type: "column",
-                      _key: "col-b",
-                      content: [
-                        {
-                          _type: "htmlBlock",
-                          _key: "inline",
-                          isolated: false,
-                          html: `<figure><a href="${url("detail")}"><img src="${url("preview")}" alt="Inline diagram" width="480" height="320"></a><figcaption>Inline explanation</figcaption></figure>`,
-                        },
-                      ],
+                      _type: "span",
+                      _key: "video-span",
+                      text: "Watch the demo",
+                      marks: ["video-link"],
                     },
                   ],
                 },
-                { ...image("Navigation image"), link: { href: "/posts" } },
-                { ...image("Ambiguous destination"), link: { href: "/render?id=unknown" } },
-                image("Repeated diagram"),
-                { ...image("Unavailable image"), link: { href: "/__popcase-images/missing.jpg" } },
-              ];
+              ]
+            : scenario === "video"
+              ? [
+                  {
+                    ...image("Video preview", "preview", "Synthetic video demo"),
+                    link: { href: "/__popcase-videos/demo.mp4" },
+                  },
+                  {
+                    _type: "htmlBlock",
+                    _key: "video-html",
+                    isolated: false,
+                    html: '<p><a href="/__popcase-videos/demo.mp4?repeat=1">Watch again</a></p>',
+                  },
+                  image("Image beside video"),
+                  {
+                    _type: "video",
+                    _key: "native-video",
+                    asset: { _ref: "demo-video", url: "/__popcase-videos/demo.mp4" },
+                    caption: "Native inline video",
+                  },
+                ]
+              : [
+                  image("First diagram"),
+                  {
+                    ...image("Separate preview", "preview", "A different viewer source"),
+                    width: 480,
+                    height: 320,
+                    link: { href: url("detail") },
+                  },
+                  {
+                    _type: "gallery",
+                    _key: "gallery",
+                    columns: 2,
+                    images: [image("Gallery first"), image("Gallery second", "detail")],
+                  },
+                  {
+                    _type: "columns",
+                    _key: "columns",
+                    columns: [
+                      {
+                        _type: "column",
+                        _key: "col-a",
+                        content: [image("Column diagram", "detail")],
+                      },
+                      {
+                        _type: "column",
+                        _key: "col-b",
+                        content: [
+                          {
+                            _type: "htmlBlock",
+                            _key: "inline",
+                            isolated: false,
+                            html: `<figure><a href="${url("detail")}"><img src="${url("preview")}" alt="Inline diagram" width="480" height="320"></a><figcaption>Inline explanation</figcaption></figure>`,
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  { ...image("Navigation image"), link: { href: "/posts" } },
+                  { ...image("Ambiguous destination"), link: { href: "/render?id=unknown" } },
+                  image("Repeated diagram"),
+                  {
+                    ...image("Unavailable image"),
+                    link: { href: "/__popcase-images/missing.jpg" },
+                  },
+                ];
 
 if (scenario === "nojs" || scenario === "youtube-nojs")
   Astro.response.headers.set("Content-Security-Policy", "script-src 'none'");

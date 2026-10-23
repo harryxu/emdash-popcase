@@ -32,6 +32,10 @@ _Avoid_: Original image, thumbnail asset
 The image shown after a reader opens a body image in the image viewer. It is the body image's source unless the author links that placement to another confirmed image resource.
 _Avoid_: Original image, full-size master
 
+**Photo information**:
+The camera, lens, focal length, aperture, shutter speed, ISO sensitivity, and capture time recorded for a viewer image. It belongs to that image, even when its preview image is a different photograph.
+_Avoid_: Preview metadata, image caption
+
 **Direct video link**:
 An image or text link to a video file itself, rather than a page hosting a player.
 

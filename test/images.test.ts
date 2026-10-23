@@ -56,7 +56,11 @@ test("provider sources are never guessed from their IDs", () => {
 });
 
 test("viewer configuration retains only admin settings and ignores legacy code options", () => {
-  assert.deepEqual(normalizeConfig(), { thumbnails: false, videoAutoplay: true });
+  assert.deepEqual(normalizeConfig(), {
+    thumbnails: false,
+    videoAutoplay: true,
+    photoInformation: true,
+  });
   assert.deepEqual(
     normalizeConfig(
       Object.assign(
@@ -70,6 +74,6 @@ test("viewer configuration retains only admin settings and ignores legacy code o
         },
       ),
     ),
-    { thumbnails: true, videoAutoplay: false },
+    { thumbnails: true, videoAutoplay: false, photoInformation: true },
   );
 });

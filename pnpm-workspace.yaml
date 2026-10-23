@@ -3,6 +3,7 @@ packages:
 
 allowBuilds:
   esbuild: true
+  exifreader: false
   sharp: true
   workerd: false
 

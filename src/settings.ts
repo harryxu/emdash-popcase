@@ -23,11 +23,20 @@ export async function readContentTypes(
   return (await readSettings(settings)).settings;
 }
 
-export async function readSettings(
-  settings: Pick<SettingsAccess, "get">,
-): Promise<{ settings: ContentTypes; thumbnails: boolean; videoAutoplay: boolean }> {
+export async function readSettings(settings: Pick<SettingsAccess, "get">): Promise<{
+  settings: ContentTypes;
+  thumbnails: boolean;
+  videoAutoplay: boolean;
+  photoInformation: boolean;
+}> {
   const value = await settings.get<Record<string, unknown>>(settingKey);
-  if (value == null) return { settings: { mode: "all" }, thumbnails: false, videoAutoplay: true };
+  if (value == null)
+    return {
+      settings: { mode: "all" },
+      thumbnails: false,
+      videoAutoplay: true,
+      photoInformation: true,
+    };
   const parsed = parseContentTypes(value);
   if (!parsed) throw new Error("Invalid Popcase content type settings.");
   const thumbnails = "thumbnails" in value ? value.thumbnails : false;
@@ -35,7 +44,10 @@ export async function readSettings(
   const videoAutoplay = "videoAutoplay" in value ? value.videoAutoplay : true;
   if (typeof videoAutoplay !== "boolean")
     throw new Error("Invalid Popcase video autoplay settings.");
-  return { settings: parsed, thumbnails, videoAutoplay };
+  const photoInformation = "photoInformation" in value ? value.photoInformation : true;
+  if (typeof photoInformation !== "boolean")
+    throw new Error("Invalid Popcase photo information settings.");
+  return { settings: parsed, thumbnails, videoAutoplay, photoInformation };
 }
 
 export function isCollectionEnabled(settings: ContentTypes, collection: string): boolean {
@@ -65,12 +77,29 @@ export const settingsRoute = {
           ? ctx.input.videoAutoplay
           : true;
       if (typeof videoAutoplay !== "boolean") return { ok: false, error: "INVALID_SETTINGS" };
+      const photoInformation =
+        ctx.input && typeof ctx.input === "object" && "photoInformation" in ctx.input
+          ? ctx.input.photoInformation
+          : true;
+      if (typeof photoInformation !== "boolean") return { ok: false, error: "INVALID_SETTINGS" };
       const known = new Set(collections.map(({ slug }) => slug));
       if (parsed.mode === "selected" && parsed.collections.some((slug) => !known.has(slug))) {
         return { ok: false, error: "UNKNOWN_CONTENT_TYPE" };
       }
-      await ctx.settings.set(settingKey, { ...parsed, thumbnails, videoAutoplay });
-      return { ok: true, settings: parsed, thumbnails, videoAutoplay, collections };
+      await ctx.settings.set(settingKey, {
+        ...parsed,
+        thumbnails,
+        videoAutoplay,
+        photoInformation,
+      });
+      return {
+        ok: true,
+        settings: parsed,
+        thumbnails,
+        videoAutoplay,
+        photoInformation,
+        collections,
+      };
     }
     return { ok: true, ...(await readSettings(ctx.settings)), collections };
   },
