@@ -31,6 +31,17 @@
   --yarl__counter_filter: none;
   font-family: var(--font-body, system-ui, sans-serif);
 
+  & .yarl__button .yarl__icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  & .yarl__toolbar .yarl__button {
+    padding: 12px;
+    min-width: 48px;
+    min-height: 48px;
+  }
+
   & .yarl__button:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: -4px;

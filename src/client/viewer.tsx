@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from "lucide-react";
 import { createRoot, type Root } from "react-dom/client";
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
@@ -110,6 +111,13 @@ function Viewer({ request }: { request: OpenRequest }) {
         preload: "none",
       }}
       render={{
+        iconPrev: () => <ChevronLeft className="yarl__icon" strokeWidth={1.7} aria-hidden="true" />,
+        iconNext: () => (
+          <ChevronRight className="yarl__icon" strokeWidth={1.7} aria-hidden="true" />
+        ),
+        iconClose: () => <X className="yarl__icon" strokeWidth={1.7} aria-hidden="true" />,
+        iconZoomIn: () => <ZoomIn className="yarl__icon" strokeWidth={1.7} aria-hidden="true" />,
+        iconZoomOut: () => <ZoomOut className="yarl__icon" strokeWidth={1.7} aria-hidden="true" />,
         ...(request.slides.length === 1 ? { buttonPrev: () => null, buttonNext: () => null } : {}),
         slide: ({ slide, offset }) =>
           slide.type === "youtube" ? (
