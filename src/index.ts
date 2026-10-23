@@ -45,7 +45,7 @@ export function createPlugin(options: PopcaseOptions = {}) {
           kind: "html",
           placement: "head",
           key: "popcase-page",
-          html: `<template data-popcase-page>${encodeMarker({ ...config, thumbnails: settings.thumbnails })}</template>`,
+          html: `<template data-popcase-page>${encodeMarker({ ...config, thumbnails: settings.thumbnails, videoAutoplay: settings.videoAutoplay })}</template>`,
         };
       },
     },

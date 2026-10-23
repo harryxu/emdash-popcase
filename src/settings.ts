@@ -16,14 +16,16 @@ export async function readContentTypes(settings: Pick<SettingsAccess, "get">): P
   return (await readSettings(settings)).settings;
 }
 
-export async function readSettings(settings: Pick<SettingsAccess, "get">): Promise<{ settings: ContentTypes; thumbnails: boolean }> {
+export async function readSettings(settings: Pick<SettingsAccess, "get">): Promise<{ settings: ContentTypes; thumbnails: boolean; videoAutoplay: boolean }> {
   const value = await settings.get<Record<string, unknown>>(settingKey);
-  if (value == null) return { settings: { mode: "all" }, thumbnails: false };
+  if (value == null) return { settings: { mode: "all" }, thumbnails: false, videoAutoplay: true };
   const parsed = parseContentTypes(value);
   if (!parsed) throw new Error("Invalid Popcase content type settings.");
   const thumbnails = "thumbnails" in value ? value.thumbnails : false;
   if (typeof thumbnails !== "boolean") throw new Error("Invalid Popcase thumbnail settings.");
-  return { settings: parsed, thumbnails };
+  const videoAutoplay = "videoAutoplay" in value ? value.videoAutoplay : true;
+  if (typeof videoAutoplay !== "boolean") throw new Error("Invalid Popcase video autoplay settings.");
+  return { settings: parsed, thumbnails, videoAutoplay };
 }
 
 export function isCollectionEnabled(settings: ContentTypes, collection: string): boolean {
@@ -43,12 +45,14 @@ export const settingsRoute = {
       if (!parsed) return { ok: false, error: "INVALID_SETTINGS" };
       const thumbnails = ctx.input && typeof ctx.input === "object" && "thumbnails" in ctx.input ? ctx.input.thumbnails : false;
       if (typeof thumbnails !== "boolean") return { ok: false, error: "INVALID_SETTINGS" };
+      const videoAutoplay = ctx.input && typeof ctx.input === "object" && "videoAutoplay" in ctx.input ? ctx.input.videoAutoplay : true;
+      if (typeof videoAutoplay !== "boolean") return { ok: false, error: "INVALID_SETTINGS" };
       const known = new Set(collections.map(({ slug }) => slug));
       if (parsed.mode === "selected" && parsed.collections.some((slug) => !known.has(slug))) {
         return { ok: false, error: "UNKNOWN_CONTENT_TYPE" };
       }
-      await ctx.settings.set(settingKey, { ...parsed, thumbnails });
-      return { ok: true, settings: parsed, thumbnails, collections };
+      await ctx.settings.set(settingKey, { ...parsed, thumbnails, videoAutoplay });
+      return { ok: true, settings: parsed, thumbnails, videoAutoplay, collections };
     }
     return { ok: true, ...await readSettings(ctx.settings), collections };
   },

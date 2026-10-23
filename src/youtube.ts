@@ -32,8 +32,8 @@ export function youtubeSource(value: unknown, base: string) {
   return { src, videoId, shorts, start };
 }
 
-export function youtubeEmbedUrl({ videoId, start }: { videoId: string; start: number }): string {
+export function youtubeEmbedUrl({ videoId, start }: { videoId: string; start: number }, videoAutoplay = true): string {
   const url = new URL(`https://www.youtube-nocookie.com/embed/${videoId}`);
-  url.search = new URLSearchParams({ autoplay: "1", playsinline: "1", controls: "1", fs: "0", hl: "en", start: String(start) }).toString();
+  url.search = new URLSearchParams({ autoplay: videoAutoplay ? "1" : "0", playsinline: "1", controls: "1", fs: "0", hl: "en", start: String(start) }).toString();
   return url.href;
 }

@@ -41,6 +41,10 @@ test("YouTube start times support seconds and h/m/s in query strings and fragmen
   assert.equal(embed.origin, "https://www.youtube-nocookie.com");
   assert.equal(embed.pathname, `/embed/${id}`);
   assert.deepEqual(Object.fromEntries(embed.searchParams), { autoplay: "1", playsinline: "1", controls: "1", fs: "0", hl: "en", start: "90" });
+  const manual = new URL(youtubeEmbedUrl(result, false));
+  assert.equal(manual.searchParams.get("autoplay"), "0");
+  assert.equal(manual.searchParams.get("controls"), "1");
+  assert.equal(manual.searchParams.get("start"), "90");
 });
 
 test("YouTube text and image links retain fallback, markup, layout, poster and caption", async () => {

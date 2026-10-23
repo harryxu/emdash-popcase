@@ -68,7 +68,7 @@ test("empty selection disables everything and all mode discards any saved whitel
   assert.doesNotMatch(await render("notes"), /data-popcase=/);
   await request("POST", { mode: "selected", collections: ["posts"] });
   await request("POST", { mode: "all", collections: ["posts"] });
-  assert.deepEqual([...values], [["contentTypes", { mode: "all", thumbnails: false }]]);
+  assert.deepEqual([...values], [["contentTypes", { mode: "all", thumbnails: false, videoAutoplay: true }]]);
   assert.match(await render("notes"), /data-popcase=/);
   await request("POST", { mode: "selected", collections: [] });
   assert.doesNotMatch(await render("posts"), /data-popcase=/);
@@ -135,4 +135,39 @@ test("invalid thumbnail values cannot overwrite either setting", async () => {
   }
   values.set("contentTypes", { mode: "all", thumbnails: "true" });
   await assert.rejects(render("posts"), /Invalid Popcase thumbnail settings/);
+});
+
+test("video autoplay defaults on for new and legacy settings", async () => {
+  const { read, render, values } = fixture();
+  assert.equal((await read()).videoAutoplay, true);
+  for (const legacy of [{ mode: "all" }, { mode: "selected", collections: ["posts"], thumbnails: true }]) {
+    values.set("contentTypes", legacy);
+    assert.equal((await read()).videoAutoplay, true);
+    assert.ok((await render("posts")).includes('&quot;videoAutoplay&quot;:true'));
+  }
+});
+
+test("video autoplay persists with thumbnails and content types and reaches page configuration", async () => {
+  const { request, read, render, values } = fixture();
+  for (const videoAutoplay of [false, true]) {
+    const result = await request("POST", { mode: "selected", collections: ["posts"], thumbnails: true, videoAutoplay });
+    assert.ok(result.ok);
+    assert.equal(result.videoAutoplay, videoAutoplay);
+    assert.equal((await read()).videoAutoplay, videoAutoplay);
+    assert.deepEqual(values.get("contentTypes"), { mode: "selected", collections: ["posts"], thumbnails: true, videoAutoplay });
+    assert.ok((await render("posts")).includes(`&quot;videoAutoplay&quot;:${videoAutoplay}`));
+    assert.doesNotMatch(await render("pages"), /data-popcase=/);
+  }
+});
+
+test("invalid autoplay values leave all saved settings unchanged and invalid stored values fail", async () => {
+  const { request, read, render, values } = fixture();
+  await request("POST", { mode: "selected", collections: ["posts"], thumbnails: true, videoAutoplay: false });
+  const saved = await read();
+  for (const videoAutoplay of [null, undefined, "true", "false", 0, 1, [], {}]) {
+    assert.deepEqual(await request("POST", { mode: "all", thumbnails: false, videoAutoplay }), { ok: false, error: "INVALID_SETTINGS" });
+    assert.deepEqual(await read(), saved);
+  }
+  values.set("contentTypes", { mode: "all", videoAutoplay: "false" });
+  await assert.rejects(render("posts"), /Invalid Popcase video autoplay settings/);
 });

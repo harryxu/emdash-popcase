@@ -11,6 +11,7 @@ export interface PopcaseConfig {
   counter: boolean;
   captions: boolean;
   thumbnails: boolean;
+  videoAutoplay: boolean;
   labels: Record<string, string>;
 }
 
@@ -20,6 +21,7 @@ export type SettingsResponse = {
   ok: true;
   settings: ContentTypes;
   thumbnails: boolean;
+  videoAutoplay: boolean;
   collections: { slug: string; label: string }[];
 } | { ok: false; error: "INVALID_SETTINGS" | "UNKNOWN_CONTENT_TYPE" };
 

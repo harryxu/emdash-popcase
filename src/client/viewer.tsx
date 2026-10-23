@@ -75,12 +75,12 @@ function Viewer({ request }: { request: OpenRequest }) {
     counter={{ separator: labels.of ?? "of" }}
     captions={{ descriptionMaxLines: 3, showToggle: false }}
     thumbnails={{ position: "bottom", showToggle: false }}
-    video={{ controls: true, playsInline: true, autoPlay: true, preload: "none" }}
+    video={{ controls: true, playsInline: true, autoPlay: request.config.videoAutoplay, preload: "none" }}
     render={{
       ...(request.slides.length === 1 ? { buttonPrev: () => null, buttonNext: () => null } : {}),
       slide: ({ slide, offset }) => slide.type === "youtube"
         ? (open && offset === 0
-          ? <YoutubeSlide slide={slide} labels={labels} />
+          ? <YoutubeSlide slide={slide} labels={labels} videoAutoplay={request.config.videoAutoplay} />
           : <div />)
         : undefined,
       thumbnail: ({ slide, rect }) => slide.type === "youtube" ? <YoutubeThumbnail slide={slide} rect={rect} /> : undefined,

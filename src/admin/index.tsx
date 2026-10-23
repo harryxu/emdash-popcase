@@ -10,6 +10,7 @@ export function SettingsPage() {
   const [data, setData] = useState<Extract<SettingsResponse, { ok: true }>>();
   const [draft, setDraft] = useState<ContentTypes>({ mode: "all" });
   const [thumbnails, setThumbnails] = useState(false);
+  const [videoAutoplay, setVideoAutoplay] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<"load" | "save">();
@@ -25,6 +26,7 @@ export function SettingsPage() {
       const known = new Set(result.collections.map(({ slug }) => slug));
       setData(result);
       setThumbnails(result.thumbnails);
+      setVideoAutoplay(result.videoAutoplay);
       setDraft(result.settings.mode === "all" ? result.settings : {
         mode: "selected", collections: result.settings.collections.filter((slug) => known.has(slug)),
       });
@@ -55,12 +57,13 @@ export function SettingsPage() {
     setError(undefined);
     try {
       const result = await parseApiResponse<SettingsResponse>(await apiFetch(endpoint, {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...draft, thumbnails }),
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...draft, thumbnails, videoAutoplay }),
       }));
       if (!result.ok) throw new Error("Failed to save Popcase settings.");
       setData(result);
       setDraft(result.settings);
       setThumbnails(result.thumbnails);
+      setVideoAutoplay(result.videoAutoplay);
       setSaved(true);
     } catch {
       setError("save");
@@ -73,7 +76,7 @@ export function SettingsPage() {
     <div className="mx-auto w-full max-w-2xl space-y-6 p-4 sm:p-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold text-kumo-default">Popcase settings</h1>
-        <p className="text-sm text-kumo-subtle">Choose which content types use Popcase. Changes apply to existing and new content after saving.</p>
+        <p className="text-sm text-kumo-subtle">Choose content types and viewer behavior. Changes apply to existing and new content after saving.</p>
       </header>
       {loading ? <div role="status"><Loader />Loading settings…</div> : !data ? (
         <div className="space-y-3">
@@ -114,6 +117,16 @@ export function SettingsPage() {
                 setError(undefined);
               }} />
             <p className="text-sm text-kumo-subtle">Show clickable thumbnails at the bottom of the image viewer.</p>
+          </fieldset>
+          <fieldset disabled={saving} className="space-y-3">
+            <legend className="mb-3 font-medium text-kumo-default">Video playback</legend>
+            <Checkbox name="videoAutoplay" label="Autoplay videos" checked={videoAutoplay} disabled={saving}
+              onCheckedChange={(checked) => {
+                setVideoAutoplay(checked === true);
+                setSaved(false);
+                setError(undefined);
+              }} />
+            <p className="text-sm text-kumo-subtle">Automatically play linked video files and YouTube videos when opened or selected in the viewer.</p>
           </fieldset>
           <p role="status" className="text-sm text-kumo-subtle">
             {draft.mode === "selected" && draft.collections.length === 0

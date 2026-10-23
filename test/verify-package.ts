@@ -66,6 +66,7 @@ try {
     assert.equal(response.status, 200);
     const html = await response.text();
     assert.equal((html.match(/data-popcase=/g) ?? []).length, expected);
+    if (Number(expected) > 0) assert.ok(html.includes('&quot;videoAutoplay&quot;:true'), "Default autoplay must reach the installed client configuration.");
     assert.ok(!html.includes("<!--popcase:") && !html.includes("data-popcase-page"));
     if (query === "?case=video-text") {
       assert.ok(html.includes("Open video: Watch the demo"));

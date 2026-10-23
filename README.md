@@ -56,6 +56,7 @@ Open Popcase in the admin sidebar or visit `/_emdash/admin/plugins/popcase/setti
 - "Enable all content types" is checked by default and includes future types.
 - Uncheck it to select types individually. The selection starts empty; new types stay disabled until selected.
 - "Enable thumbnails" adds a clickable strip below the image. It is off by default.
+- "Autoplay videos" controls linked video files and YouTube playback in the viewer; it is on by default.
 - Click "Save settings" to apply changes to existing and new content. An empty content type selection disables Popcase everywhere.
 
 The page lists all registered content types, including hidden types and types without routes. Switching back to individual selection clears earlier selections.

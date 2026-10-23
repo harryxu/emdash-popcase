@@ -32,4 +32,6 @@ test("viewer defaults and custom label overrides are independent", () => {
   assert.equal(normalizeOptions({ zoom: false }).captions, true);
   assert.deepEqual(normalizeOptions().labels, {});
   assert.deepEqual(normalizeOptions({ labels: { Close: "Close viewer" } }).labels, { Close: "Close viewer" });
+  assert.equal(normalizeOptions().videoAutoplay, true);
+  assert.equal(normalizeOptions({ videoAutoplay: false }).videoAutoplay, false);
 });
