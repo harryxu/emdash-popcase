@@ -23,6 +23,7 @@ try {
   }
   assert.ok(files.every((file) => !/^(?:example|test|node_modules|\.git)\//.test(file)));
   assert.ok(!files.some((file) => /^src\/.*\.[cm]?js$/.test(file)), "Source files must remain TypeScript.");
+  assert.ok(!files.some((file) => /^(?:src|dist)\/options\./.test(file)), "Removed code configuration must not ship in the package.");
   target = await prepareHost(join(packed, archive.filename));
   execFileSync("pnpm", ["install", "--no-frozen-lockfile"], { cwd: target, stdio: "inherit" });
   await copyFile(new URL("./package-types.ts", import.meta.url), join(target, "popcase-types.ts"));

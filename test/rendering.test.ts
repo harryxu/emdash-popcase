@@ -2,10 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { parseHTML } from "linkedom";
 import { enhanceHtml } from "../dist/server.js";
-import { normalizeOptions } from "../dist/options.js";
+import { normalizeConfig } from "../dist/config.js";
 import { collectGroup } from "../src/client/group.ts";
 
-const options = { base: "https://blog.example/posts/story", config: normalizeOptions() };
+const options = { base: "https://blog.example/posts/story", config: normalizeConfig() };
 const node = { asset: { _ref: "source", url: "/full.jpg" }, width: 2400, height: 1600, alt: "A diagram", caption: "An explanation" };
 const markup = '<figure class="emdash-image custom" style="margin:0"><img src="/preview.webp" width="600" height="400" alt="A diagram"><figcaption>An explanation</figcaption></figure>';
 const documentOf = (html: string) => parseHTML(`<html><body>${html}</body></html>`).document;

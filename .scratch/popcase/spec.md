@@ -19,8 +19,8 @@ Use the terminology in [GLOSSARY.md](../../GLOSSARY.md). Distribution and image-
 - Store one plugin-scoped `contentTypes` value: `{ mode: "all", thumbnails: false, videoAutoplay: true }` or `{ mode: "selected", collections: [...], thumbnails: false, videoAutoplay: true }`. An empty selection disables Popcase everywhere. Enumerate all registered types, including hidden and non-routable types.
 - Add an English "Autoplay videos" checkbox under "Video playback" in admin settings, enabled by default. Save `videoAutoplay` atomically with thumbnails and content type eligibility; absent legacy fields default to true and non-boolean values are rejected. Apply the flag to both direct video files and YouTube on opening and navigation, retaining manual controls when disabled. Only an explicit Save applies changes; cached/prerendered pages need invalidation or regeneration. Existing inline players are unaffected.
 - Replace the former `collections` factory option. Sites without saved settings default to all types, including those excluded by older project configuration. Read settings on each eligible page render; externally cached or prerendered HTML requires cache invalidation or regeneration.
-- Make zoom, image count, and captions individually configurable, enabled by default.
-- Use English interface labels in the admin settings page and public viewer regardless of the page or administrator language. Allow viewer label configuration overrides.
+- Always enable zoom, image count, and captions. Plugin factories take no code configuration; content types, thumbnails, and video autoplay are controlled in the admin settings.
+- Use fixed English interface labels in the admin settings page and public viewer regardless of the page or administrator language.
 - Preserve the host's server rendering, image layout, and light/dark presentation. Keep theme changes out of the plugin's installation requirements.
 - Render the image viewer with a dark, partially transparent backdrop in both site themes and light controls. Preview links use the normal link pointer. These presentation choices were confirmed on 2026-10-20 and supersede the original theme-following overlay.
 
@@ -120,9 +120,9 @@ The plugin's Astro renderers and client entry must be compiled by the host. Vali
 2. Existing post/page fixtures work without resaving. Standard, gallery, column, and inline-HTML images enter the same ordered group; excluded images remain unaffected.
 3. Selecting an occurrence opens the right index, including repeated URLs. Single-image groups and first/last boundaries behave as specified.
 4. Local source images, separate preview/viewer images, direct external images, ordinary navigation links, and ambiguous links follow the specified source and exclusion rules.
-5. Keyboard opening, navigation, zoom, dismissal, focus restoration, and mobile touch interaction work. English labels and configuration overrides are observable regardless of the page language.
+5. Keyboard opening, navigation, zoom, dismissal, focus restoration, and mobile touch interaction work. Fixed English labels are observable regardless of the page language.
 6. No-JavaScript and simulated module-load failure preserve image-link fallback. A broken image cannot trap the reader in the overlay.
-7. Visual editing retains editing clicks. Saved content type eligibility and the three feature switches take effect.
+7. Visual editing retains editing clicks. Saved content type eligibility, thumbnails, and video autoplay take effect.
 8. Desktop/mobile and light/dark visual checks preserve the host's figure layout, captions, article rails, and reading flow. Check current Chromium, Firefox, and Safari behavior, including a mobile/touch viewport.
 9. The admin settings page lists all registered content types, defaults to all-types mode, disables individual checkboxes in that mode, clears selections when switching to selected mode, and persists only on explicit save. Empty selected mode disables all types; new types are enabled only in all-types mode. Invalid settings are rejected, and the private settings route requires `plugins:manage` and host CSRF protections.
 

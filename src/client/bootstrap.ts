@@ -1,17 +1,15 @@
 import { collectGroup } from "./group";
-import { normalizeOptions } from "../options.js";
+import { normalizeConfig } from "../config.js";
 
 let sequence = 0;
 let viewer: typeof import("./viewer") | undefined;
 
 function initialize() {
   for (const { anchor, slide } of collectGroup(document)) {
-    const config = normalizeOptions(JSON.parse(anchor.dataset.popcaseConfig ?? "{}"));
-    const labels = config.labels;
     anchor.setAttribute("role", "button");
     anchor.setAttribute("aria-haspopup", "dialog");
     const label = slide.type === "video" || slide.type === "youtube" ? "Open video" : "Open image";
-    anchor.setAttribute("aria-label", `${labels[label] ?? label}${slide.alt ? `: ${slide.alt}` : ""}`);
+    anchor.setAttribute("aria-label", `${label}${slide.alt ? `: ${slide.alt}` : ""}`);
   }
 }
 
@@ -34,7 +32,7 @@ document.addEventListener("click", async (event) => {
     viewer.openViewer({
       slides: group.map((entry) => entry.slide),
       index,
-      config: normalizeOptions(JSON.parse(anchor.dataset.popcaseConfig ?? "{}")),
+      config: normalizeConfig(JSON.parse(anchor.dataset.popcaseConfig ?? "{}")),
       trigger: anchor,
     });
   } catch (error) {

@@ -1,18 +1,16 @@
 import { definePlugin, getRequestContext } from "emdash";
 import packageMetadata from "../package.json" with { type: "json" };
-import { normalizeOptions } from "./options.js";
+import { normalizeConfig } from "./config.js";
 import { encodeMarker } from "./markers.js";
 import { isCollectionEnabled, readSettings, settingsRoute } from "./settings.js";
 
 import type { PluginDescriptor } from "emdash";
 import type { AstroIntegration } from "astro";
-import type { PopcaseOptions } from "./types.js";
-
-export type { PopcaseOptions, PopcaseConfig } from "./types.js";
+export type { PopcaseConfig } from "./types.js";
 
 const { version } = packageMetadata;
 
-export function popcase(options: PopcaseOptions = {}): PluginDescriptor {
+export function popcase(): PluginDescriptor {
   return {
     id: "popcase",
     version,
@@ -20,12 +18,10 @@ export function popcase(options: PopcaseOptions = {}): PluginDescriptor {
     entrypoint: "emdash-popcase",
     componentsEntry: "emdash-popcase/astro",
     adminEntry: "emdash-popcase/admin",
-    options: { ...normalizeOptions(options) },
   };
 }
 
-export function createPlugin(options: PopcaseOptions = {}) {
-  const config = normalizeOptions(options);
+export function createPlugin() {
   return definePlugin({
     id: "popcase",
     version,
@@ -45,7 +41,7 @@ export function createPlugin(options: PopcaseOptions = {}) {
           kind: "html",
           placement: "head",
           key: "popcase-page",
-          html: `<template data-popcase-page>${encodeMarker({ ...config, thumbnails: settings.thumbnails, videoAutoplay: settings.videoAutoplay })}</template>`,
+          html: `<template data-popcase-page>${encodeMarker(normalizeConfig(settings))}</template>`,
         };
       },
     },

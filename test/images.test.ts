@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { imageSource, isImageDestination, safeImageUrl } from "../dist/images.js";
-import { normalizeOptions } from "../dist/options.js";
+import { normalizeConfig } from "../dist/config.js";
 
 const base = "https://blog.example/posts/story";
 
@@ -26,12 +26,9 @@ test("provider sources are never guessed from their IDs", () => {
   assert.equal(imageSource({ asset: { _ref: "remote-id", provider: "custom", url: "https://images.example/full.jpg" } }, base), "https://images.example/full.jpg");
 });
 
-test("viewer defaults and custom label overrides are independent", () => {
-  assert.equal("collections" in normalizeOptions(Object.assign({ zoom: true }, { collections: ["posts"] })), false);
-  assert.equal(normalizeOptions({ zoom: false }).zoom, false);
-  assert.equal(normalizeOptions({ zoom: false }).captions, true);
-  assert.deepEqual(normalizeOptions().labels, {});
-  assert.deepEqual(normalizeOptions({ labels: { Close: "Close viewer" } }).labels, { Close: "Close viewer" });
-  assert.equal(normalizeOptions().videoAutoplay, true);
-  assert.equal(normalizeOptions({ videoAutoplay: false }).videoAutoplay, false);
+test("viewer configuration retains only admin settings and ignores legacy code options", () => {
+  assert.deepEqual(normalizeConfig(), { thumbnails: false, videoAutoplay: true });
+  assert.deepEqual(normalizeConfig(Object.assign({ thumbnails: true, videoAutoplay: false }, {
+    zoom: false, counter: false, captions: false, labels: { Close: "Custom close" }, collections: ["posts"],
+  })), { thumbnails: true, videoAutoplay: false });
 });

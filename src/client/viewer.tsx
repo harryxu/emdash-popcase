@@ -49,12 +49,8 @@ export function prepareViewer() {
 
 function Viewer({ request }: { request: OpenRequest }) {
   const [open, setOpen] = useState(true);
-  const labels = request.config.labels;
   const plugins = [
-    Video,
-    ...(request.config.zoom ? [Zoom] : []),
-    ...(request.config.counter ? [Counter] : []),
-    ...(request.config.captions ? [Captions] : []),
+    Video, Zoom, Counter, Captions,
     ...(request.config.thumbnails ? [Thumbnails] : []),
   ];
   return <Lightbox
@@ -66,13 +62,12 @@ function Viewer({ request }: { request: OpenRequest }) {
     slides={request.slides}
     index={request.index}
     plugins={plugins}
-    labels={labels}
     className="popcase-viewer"
     portal={{ root: host, container: { role: "presentation", "aria-modal": undefined, "aria-label": undefined } }}
     carousel={{ finite: true, preload: 2 }}
     controller={{ aria: true, closeOnBackdropClick: true }}
     zoom={{ maxZoomPixelRatio: 1 }}
-    counter={{ separator: labels.of ?? "of" }}
+    counter={{ separator: "of" }}
     captions={{ descriptionMaxLines: 3, showToggle: false }}
     thumbnails={{ position: "bottom", showToggle: false }}
     video={{ controls: true, playsInline: true, autoPlay: request.config.videoAutoplay, preload: "none" }}
@@ -80,7 +75,7 @@ function Viewer({ request }: { request: OpenRequest }) {
       ...(request.slides.length === 1 ? { buttonPrev: () => null, buttonNext: () => null } : {}),
       slide: ({ slide, offset }) => slide.type === "youtube"
         ? (open && offset === 0
-          ? <YoutubeSlide slide={slide} labels={labels} videoAutoplay={request.config.videoAutoplay} />
+          ? <YoutubeSlide slide={slide} videoAutoplay={request.config.videoAutoplay} />
           : <div />)
         : undefined,
       thumbnail: ({ slide, rect }) => slide.type === "youtube" ? <YoutubeThumbnail slide={slide} rect={rect} /> : undefined,
@@ -106,7 +101,7 @@ export function openViewer(request: OpenRequest) {
   host = document.createElement("dialog");
   host.dataset.popcaseRoot = "";
   host.className = "popcase-dialog";
-  host.setAttribute("aria-label", request.config.labels.Lightbox ?? "Lightbox");
+  host.setAttribute("aria-label", "Lightbox");
   host.addEventListener("cancel", (event) => {
     event.preventDefault();
     disposeViewer();

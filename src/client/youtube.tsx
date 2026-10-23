@@ -10,14 +10,14 @@ declare module "yet-another-react-lightbox" {
   }
 }
 
-export function YoutubeSlide({ slide, labels, videoAutoplay }: {
-  slide: ViewerYoutube; labels: Record<string, string>; videoAutoplay: boolean;
+export function YoutubeSlide({ slide, videoAutoplay }: {
+  slide: ViewerYoutube; videoAutoplay: boolean;
 }) {
   return <div className="popcase-youtube"
     style={{ "--popcase-youtube-ratio": slide.shorts ? 9 / 16 : 16 / 9 } as CSSProperties}
     onClick={(event) => event.stopPropagation()}>
     <iframe
-      title={slide.alt || (labels["YouTube video"] ?? "YouTube video")}
+      title={slide.alt || "YouTube video"}
       src={youtubeEmbedUrl(slide, videoAutoplay)}
       width={slide.shorts ? 720 : 1280}
       height={slide.shorts ? 1280 : 720}

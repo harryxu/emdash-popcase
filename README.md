@@ -6,6 +6,8 @@ Popcase supports images, linked videos, and YouTube links in the same viewer.
 
 ![Screenshot 1](images/screenshot1.jpg)
 
+Live Demo: https://my-emdash-site.harryzhxu.workers.dev/posts/popcase-demo
+
 ## Installation
 
 Requires EmDash 1.3.1+, Astro 7, React, React DOM, and `@astrojs/react`.
@@ -37,17 +39,6 @@ export default defineConfig({
 Register `popcaseIntegration()` before `emdash()`. Your theme must render `EmDashHead` with the content page context and collection, and use `PortableText` from `emdash/ui` for body content. The blog template already does this. Custom block renderers take precedence over Popcase's renderers.
 
 The integration buffers public HTML responses, which disables streaming. If your site caches full responses, wrap this integration with the cache so it stores the processed HTML. Rebuild and redeploy after installation or project configuration changes.
-
-## Configuration
-
-```ts
-popcase({
-  zoom: true,
-  counter: true,
-  captions: true,
-  labels: { Close: "Close viewer" },
-});
-```
 
 ## Admin settings
 

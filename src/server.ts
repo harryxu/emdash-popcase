@@ -44,8 +44,7 @@ export function enhanceHtml(html: string, { nodes = [], base, publicUrl, config,
       ...(width && height ? { width, height } : {}),
     }));
     anchor.setAttribute("data-popcase-config", JSON.stringify(config));
-    const label = config.labels["Open image"] ?? "Open image";
-    anchor.setAttribute("aria-label", `${label}${img.getAttribute("alt") ? `: ${img.getAttribute("alt")}` : ""}`);
+    anchor.setAttribute("aria-label", `Open image${img.getAttribute("alt") ? `: ${img.getAttribute("alt")}` : ""}`);
   }
   return document.body.innerHTML;
 }
@@ -89,7 +88,7 @@ export function enhanceResponse(html: string, base: string): string {
       ...(poster ? { poster } : {}),
     }));
     anchor.setAttribute("data-popcase-config", JSON.stringify(config));
-    anchor.setAttribute("aria-label", `${config.labels["Open video"] ?? "Open video"}${alt ? `: ${alt}` : ""}`);
+    anchor.setAttribute("aria-label", `Open video${alt ? `: ${alt}` : ""}`);
     changed = true;
   }
   return changed ? document.toString() : output;

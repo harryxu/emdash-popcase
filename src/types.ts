@@ -1,18 +1,6 @@
-export interface PopcaseOptions {
-  zoom?: boolean;
-  counter?: boolean;
-  captions?: boolean;
-  /** Override individual English viewer labels. */
-  labels?: Record<string, string>;
-}
-
 export interface PopcaseConfig {
-  zoom: boolean;
-  counter: boolean;
-  captions: boolean;
   thumbnails: boolean;
   videoAutoplay: boolean;
-  labels: Record<string, string>;
 }
 
 export type ContentTypes = { mode: "all" } | { mode: "selected"; collections: string[] };

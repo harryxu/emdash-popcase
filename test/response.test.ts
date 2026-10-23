@@ -16,7 +16,7 @@ const markup = '<figure class="emdash-image"><img src="/preview.jpg" alt="A test
 const source = { source: "https://blog.example/full.jpg", width: 2400, height: 1600 };
 
 test("native configuration uses real page identity and stays isolated across concurrent contexts", async () => {
-  const instance = createPlugin({ zoom: false });
+  const instance = createPlugin();
   const values = await Promise.all([
     contribution(page()), contribution(page("pages")), contribution(page("notes")),
     contribution(page(), { editMode: true }), contribution({ kind: "custom" }),
@@ -27,7 +27,8 @@ test("native configuration uses real page identity and stays isolated across con
   assert.ok(values[2]);
   assert.equal(values[3], null);
   assert.equal(values[4], null);
-  assert.ok(decodeURIComponent(values[5]!.html).includes('"zoom":false'));
+  assert.ok(!decodeURIComponent(values[5]!.html).includes('"zoom"'));
+  assert.ok(!("options" in popcase()));
   assert.equal(popcase().version, packageMetadata.version);
   assert.equal(instance.version, packageMetadata.version);
   assert.equal(popcase().format, "native");
