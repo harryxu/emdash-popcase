@@ -3,9 +3,11 @@ import { safeImageUrl } from "./images.js";
 function startSeconds(value: string | null): number | undefined {
   if (!value) return undefined;
   const match = /^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/i.exec(value);
-  const seconds = /^\d+$/.test(value) ? Number(value) : match
-    ? Number(match[1] ?? 0) * 3600 + Number(match[2] ?? 0) * 60 + Number(match[3] ?? 0)
-    : NaN;
+  const seconds = /^\d+$/.test(value)
+    ? Number(value)
+    : match
+      ? Number(match[1] ?? 0) * 3600 + Number(match[2] ?? 0) * 60 + Number(match[3] ?? 0)
+      : NaN;
   return Number.isSafeInteger(seconds) && seconds >= 0 ? seconds : undefined;
 }
 
@@ -27,13 +29,27 @@ export function youtubeSource(value: unknown, base: string) {
   }
   if (!videoId || !/^[\w-]{11}$/.test(videoId)) return undefined;
   const fragment = new URLSearchParams(url.hash.slice(1));
-  const start = startSeconds(url.searchParams.get("t")) ?? startSeconds(url.searchParams.get("start")) ??
-    startSeconds(fragment.get("t")) ?? startSeconds(fragment.get("start")) ?? 0;
+  const start =
+    startSeconds(url.searchParams.get("t")) ??
+    startSeconds(url.searchParams.get("start")) ??
+    startSeconds(fragment.get("t")) ??
+    startSeconds(fragment.get("start")) ??
+    0;
   return { src, videoId, shorts, start };
 }
 
-export function youtubeEmbedUrl({ videoId, start }: { videoId: string; start: number }, videoAutoplay = true): string {
+export function youtubeEmbedUrl(
+  { videoId, start }: { videoId: string; start: number },
+  videoAutoplay = true,
+): string {
   const url = new URL(`https://www.youtube-nocookie.com/embed/${videoId}`);
-  url.search = new URLSearchParams({ autoplay: videoAutoplay ? "1" : "0", playsinline: "1", controls: "1", fs: "0", hl: "en", start: String(start) }).toString();
+  url.search = new URLSearchParams({
+    autoplay: videoAutoplay ? "1" : "0",
+    playsinline: "1",
+    controls: "1",
+    fs: "0",
+    hl: "en",
+    start: String(start),
+  }).toString();
   return url.href;
 }

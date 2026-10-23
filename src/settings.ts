@@ -7,16 +7,25 @@ export function parseContentTypes(value: unknown): ContentTypes | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   if (!("mode" in value)) return null;
   if (value.mode === "all") return { mode: "all" };
-  if (value.mode !== "selected" || !("collections" in value) || !Array.isArray(value.collections) ||
-      !value.collections.every((slug) => typeof slug === "string" && slug.length > 0)) return null;
+  if (
+    value.mode !== "selected" ||
+    !("collections" in value) ||
+    !Array.isArray(value.collections) ||
+    !value.collections.every((slug) => typeof slug === "string" && slug.length > 0)
+  )
+    return null;
   return { mode: "selected", collections: [...new Set(value.collections)] };
 }
 
-export async function readContentTypes(settings: Pick<SettingsAccess, "get">): Promise<ContentTypes> {
+export async function readContentTypes(
+  settings: Pick<SettingsAccess, "get">,
+): Promise<ContentTypes> {
   return (await readSettings(settings)).settings;
 }
 
-export async function readSettings(settings: Pick<SettingsAccess, "get">): Promise<{ settings: ContentTypes; thumbnails: boolean; videoAutoplay: boolean }> {
+export async function readSettings(
+  settings: Pick<SettingsAccess, "get">,
+): Promise<{ settings: ContentTypes; thumbnails: boolean; videoAutoplay: boolean }> {
   const value = await settings.get<Record<string, unknown>>(settingKey);
   if (value == null) return { settings: { mode: "all" }, thumbnails: false, videoAutoplay: true };
   const parsed = parseContentTypes(value);
@@ -24,7 +33,8 @@ export async function readSettings(settings: Pick<SettingsAccess, "get">): Promi
   const thumbnails = "thumbnails" in value ? value.thumbnails : false;
   if (typeof thumbnails !== "boolean") throw new Error("Invalid Popcase thumbnail settings.");
   const videoAutoplay = "videoAutoplay" in value ? value.videoAutoplay : true;
-  if (typeof videoAutoplay !== "boolean") throw new Error("Invalid Popcase video autoplay settings.");
+  if (typeof videoAutoplay !== "boolean")
+    throw new Error("Invalid Popcase video autoplay settings.");
   return { settings: parsed, thumbnails, videoAutoplay };
 }
 
@@ -35,7 +45,9 @@ export function isCollectionEnabled(settings: ContentTypes, collection: string):
 export const settingsRoute = {
   methods: ["GET", "POST"],
   permission: "plugins:manage",
-  handler: async (ctx: Pick<RouteContext, "schema" | "settings" | "request" | "input">): Promise<SettingsResponse> => {
+  handler: async (
+    ctx: Pick<RouteContext, "schema" | "settings" | "request" | "input">,
+  ): Promise<SettingsResponse> => {
     if (!ctx.schema) throw new Error("Popcase requires schema:read access.");
     const collections = (await ctx.schema.listCollections())
       .map(({ slug, label }) => ({ slug, label }))
@@ -43,9 +55,15 @@ export const settingsRoute = {
     if (ctx.request.method === "POST") {
       const parsed = parseContentTypes(ctx.input);
       if (!parsed) return { ok: false, error: "INVALID_SETTINGS" };
-      const thumbnails = ctx.input && typeof ctx.input === "object" && "thumbnails" in ctx.input ? ctx.input.thumbnails : false;
+      const thumbnails =
+        ctx.input && typeof ctx.input === "object" && "thumbnails" in ctx.input
+          ? ctx.input.thumbnails
+          : false;
       if (typeof thumbnails !== "boolean") return { ok: false, error: "INVALID_SETTINGS" };
-      const videoAutoplay = ctx.input && typeof ctx.input === "object" && "videoAutoplay" in ctx.input ? ctx.input.videoAutoplay : true;
+      const videoAutoplay =
+        ctx.input && typeof ctx.input === "object" && "videoAutoplay" in ctx.input
+          ? ctx.input.videoAutoplay
+          : true;
       if (typeof videoAutoplay !== "boolean") return { ok: false, error: "INVALID_SETTINGS" };
       const known = new Set(collections.map(({ slug }) => slug));
       if (parsed.mode === "selected" && parsed.collections.some((slug) => !known.has(slug))) {
@@ -54,6 +72,6 @@ export const settingsRoute = {
       await ctx.settings.set(settingKey, { ...parsed, thumbnails, videoAutoplay });
       return { ok: true, settings: parsed, thumbnails, videoAutoplay, collections };
     }
-    return { ok: true, ...await readSettings(ctx.settings), collections };
+    return { ok: true, ...(await readSettings(ctx.settings)), collections };
   },
 } satisfies PluginRoute;

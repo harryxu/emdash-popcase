@@ -5,13 +5,15 @@ export interface PopcaseConfig {
 
 export type ContentTypes = { mode: "all" } | { mode: "selected"; collections: string[] };
 
-export type SettingsResponse = {
-  ok: true;
-  settings: ContentTypes;
-  thumbnails: boolean;
-  videoAutoplay: boolean;
-  collections: { slug: string; label: string }[];
-} | { ok: false; error: "INVALID_SETTINGS" | "UNKNOWN_CONTENT_TYPE" };
+export type SettingsResponse =
+  | {
+      ok: true;
+      settings: ContentTypes;
+      thumbnails: boolean;
+      videoAutoplay: boolean;
+      collections: { slug: string; label: string }[];
+    }
+  | { ok: false; error: "INVALID_SETTINGS" | "UNKNOWN_CONTENT_TYPE" };
 
 export interface ImageMetadata extends MediaNode {
   source?: string;

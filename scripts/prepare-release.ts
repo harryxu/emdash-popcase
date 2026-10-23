@@ -4,7 +4,8 @@ import { fileURLToPath } from "node:url";
 
 export async function prepareRelease(tag: string | undefined, root: string): Promise<string> {
   const match = /^v((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))$/.exec(tag ?? "");
-  if (!match || match[0] !== tag) throw new Error("Release tags must use vMAJOR.MINOR.PATCH, for example v0.1.2.");
+  if (!match || match[0] !== tag)
+    throw new Error("Release tags must use vMAJOR.MINOR.PATCH, for example v0.1.2.");
   const version = match[1];
   const manifestPath = resolve(root, "package.json");
   const manifest: Record<string, unknown> = JSON.parse(await readFile(manifestPath, "utf8"));

@@ -14,7 +14,15 @@ function initialize() {
 }
 
 document.addEventListener("click", async (event) => {
-  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  if (
+    event.defaultPrevented ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  )
+    return;
   const anchor = (event.target as Element | null)?.closest<HTMLAnchorElement>("a[data-popcase]");
   if (!anchor) return;
   const group = collectGroup(document);
@@ -58,5 +66,6 @@ document.addEventListener("astro:before-swap", () => {
   viewer?.disposeViewer();
 });
 document.addEventListener("astro:page-load", initialize);
-if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initialize, { once: true });
+if (document.readyState === "loading")
+  document.addEventListener("DOMContentLoaded", initialize, { once: true });
 else initialize();

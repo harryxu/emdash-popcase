@@ -6,21 +6,8 @@
     "verbatimModuleSyntax": true,
     "erasableSyntaxOnly": true,
     "noEmit": true,
-    "types": [
-      "astro/client",
-      "node"
-    ]
+    "types": ["astro/client", "node"]
   },
-  "include": [
-    "src",
-    "test",
-    "scripts",
-    "example/astro.config.ts"
-  ],
-  "exclude": [
-    "dist",
-    "node_modules",
-    "example/dist",
-    "example/node_modules"
-  ]
+  "include": ["src", "test", "scripts", "example/astro.config.ts"],
+  "exclude": ["dist", "node_modules", "example/dist", "example/node_modules"]
 }

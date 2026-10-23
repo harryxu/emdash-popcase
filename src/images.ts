@@ -8,14 +8,19 @@ export function safeImageUrl(value: unknown, base: string): string | undefined {
   if (typeof value !== "string" || !value.trim() || value.trim().startsWith("#")) return undefined;
   try {
     const url = new URL(value, base);
-    if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) return undefined;
+    if (!["http:", "https:"].includes(url.protocol) || url.username || url.password)
+      return undefined;
     return url.href;
   } catch {
     return undefined;
   }
 }
 
-export function isImageDestination(value: unknown, base: string, knownSources: string[] = []): boolean {
+export function isImageDestination(
+  value: unknown,
+  base: string,
+  knownSources: string[] = [],
+): boolean {
   const href = safeImageUrl(value, base);
   if (!href) return false;
   if (knownSources.some((source) => safeImageUrl(source, base) === href)) return true;
@@ -26,10 +31,15 @@ export function isImageDestination(value: unknown, base: string, knownSources: s
   return false;
 }
 
-export function imageSource(node: MediaNode | undefined, base: string, publicUrl?: (key: string) => string): string | undefined {
+export function imageSource(
+  node: MediaNode | undefined,
+  base: string,
+  publicUrl?: (key: string) => string,
+): string | undefined {
   const asset = node?.asset;
   if (!asset) return undefined;
-  if (asset.provider && asset.provider !== "local") return safeImageUrl(asset.url ?? asset.src, base);
+  if (asset.provider && asset.provider !== "local")
+    return safeImageUrl(asset.url ?? asset.src, base);
   const storageKey = asset.meta?.storageKey ?? node?.meta?.storageKey;
   const url = asset.url ?? asset.src;
   const id = asset._ref ?? asset.id;

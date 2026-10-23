@@ -6,7 +6,10 @@ const videoTypes: Record<string, string> = {
   ogv: "video/ogg",
 };
 
-export function videoSource(value: unknown, base: string): { src: string; type: string } | undefined {
+export function videoSource(
+  value: unknown,
+  base: string,
+): { src: string; type: string } | undefined {
   const src = safeImageUrl(value, base);
   if (!src) return undefined;
   const extension = new URL(src).pathname.match(/\.([a-z0-9]+)$/i)?.[1].toLowerCase();

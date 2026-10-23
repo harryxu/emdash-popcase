@@ -1,0 +1,22 @@
+# Generated output and package manager files
+node_modules/
+dist/
+.astro/
+.emdash/
+.pnpm-store/
+pnpm-lock.yaml
+example/emdash-env.d.ts
+
+# Agent resources, local tooling, and historical records
+.agents/
+.codex/
+.cursor/
+.impeccable/
+.scratch/
+.mcp.json
+.vscode/mcp.json
+AGENTS.md
+
+# Static media fixtures
+example/public/
+images/

@@ -11,15 +11,20 @@ import { transformResponse } from "../dist/response.js";
 
 const base = "https://blog.example/posts/story";
 const page = (collection = "posts") => ({ kind: "content" as const, content: { collection } });
-const block = (markup: string, nodes: ImageMetadata[] = [], inline = false) => `<!--popcase:${encodeMarker({ nodes, inline })}-->${markup}<!--/popcase-->`;
-const markup = '<figure class="emdash-image"><img src="/preview.jpg" alt="A test diagram"></figure>';
+const block = (markup: string, nodes: ImageMetadata[] = [], inline = false) =>
+  `<!--popcase:${encodeMarker({ nodes, inline })}-->${markup}<!--/popcase-->`;
+const markup =
+  '<figure class="emdash-image"><img src="/preview.jpg" alt="A test diagram"></figure>';
 const source = { source: "https://blog.example/full.jpg", width: 2400, height: 1600 };
 
 test("native configuration uses real page identity and stays isolated across concurrent contexts", async () => {
   const instance = createPlugin();
   const values = await Promise.all([
-    contribution(page()), contribution(page("pages")), contribution(page("notes")),
-    contribution(page(), { editMode: true }), contribution({ kind: "custom" }),
+    contribution(page()),
+    contribution(page("pages")),
+    contribution(page("notes")),
+    contribution(page(), { editMode: true }),
+    contribution({ kind: "custom" }),
     contribution(page("notes"), { editMode: false }, instance),
   ]);
   assert.ok(values[0]?.html.includes("data-popcase-page"));
@@ -42,8 +47,12 @@ test("native configuration uses real page identity and stays isolated across con
   assert.ok(setup);
   const scripts: string[] = [];
   const hooks: Pick<Parameters<Setup>[0], "injectScript" | "addMiddleware"> = {
-    injectScript: (_stage, code) => { scripts.push(code); },
-    addMiddleware: (entry) => { middlewares.push(entry); },
+    injectScript: (_stage, code) => {
+      scripts.push(code);
+    },
+    addMiddleware: (entry) => {
+      middlewares.push(entry);
+    },
   };
   setup(hooks as Parameters<Setup>[0]);
   assert.ok(scripts.includes('import "emdash-popcase/client";'));
@@ -69,18 +78,31 @@ test("excluded pages retain original block HTML and surrounding document bytes",
 
 test("known extensionless image references can be linked from another block", async () => {
   const src = "https://blog.example/_emdash/api/media/file/known-image";
-  const html = (await contribution(page()))!.html + block(markup, [{ source: src }]) +
-    block('<a href="/_emdash/api/media/file/known-image"><img src="/thumb.jpg" alt="Inline preview"></a>', [], true);
+  const html =
+    (await contribution(page()))!.html +
+    block(markup, [{ source: src }]) +
+    block(
+      '<a href="/_emdash/api/media/file/known-image"><img src="/thumb.jpg" alt="Inline preview"></a>',
+      [],
+      true,
+    );
   assert.equal((enhanceResponse(html, base).match(/data-popcase=/g) ?? []).length, 2);
 });
 
 test("rewriting a response preserves cache/privacy headers and Astro cookie state but removes stale body validators", async () => {
   const html = (await contribution(page()))!.html + block(markup, [source]);
-  const response = new Response(html, { headers: {
-    "content-type": "text/html", "content-length": "999", "etag": '"old"',
-    "cache-control": "private, no-store", "vary": "Cookie", "set-cookie": "test=value; HttpOnly",
-    "content-security-policy": "default-src 'self'", "x-emdash-test": "kept",
-  } });
+  const response = new Response(html, {
+    headers: {
+      "content-type": "text/html",
+      "content-length": "999",
+      etag: '"old"',
+      "cache-control": "private, no-store",
+      vary: "Cookie",
+      "set-cookie": "test=value; HttpOnly",
+      "content-security-policy": "default-src 'self'",
+      "x-emdash-test": "kept",
+    },
+  });
   const cookie = Symbol.for("astro.cookies");
   Reflect.set(response, cookie, { pending: true });
   const result = await transformResponse(response, base);
@@ -96,10 +118,14 @@ test("rewriting a response preserves cache/privacy headers and Astro cookie stat
 });
 
 test("non-HTML, partial, redirect and compressed responses pass through untouched", async () => {
-  for (const response of [new Response("{}", { headers: { "content-type": "application/json" } }),
+  for (const response of [
+    new Response("{}", { headers: { "content-type": "application/json" } }),
     new Response("partial", { status: 206, headers: { "content-type": "text/html" } }),
     new Response(null, { status: 302, headers: { location: "/next" } }),
-    new Response("compressed", { headers: { "content-type": "text/html", "content-encoding": "gzip" } })]) {
+    new Response("compressed", {
+      headers: { "content-type": "text/html", "content-encoding": "gzip" },
+    }),
+  ]) {
     assert.equal(await transformResponse(response, base), response);
     assert.equal(response.bodyUsed, false);
   }

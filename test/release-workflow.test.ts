@@ -4,10 +4,20 @@ import { execFileSync } from "node:child_process";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { selectRelease, pushReleaseTag, verifyRelease, publicationState, type ReleaseState } from "../scripts/release.ts";
+import {
+  selectRelease,
+  pushReleaseTag,
+  verifyRelease,
+  publicationState,
+  type ReleaseState,
+} from "../scripts/release.ts";
 
 function git(root: string, ...args: string[]): string {
-  return execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  return execFileSync("git", args, {
+    cwd: root,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
 }
 
 async function fixture(run: (root: string, remote: string) => Promise<void>) {
@@ -32,19 +42,33 @@ async function fixture(run: (root: string, remote: string) => Promise<void>) {
 }
 
 async function manifest(root: string, version: string) {
-  await writeFile(join(root, "package.json"), `${JSON.stringify({ name: "emdash-popcase", version, type: "module" }, null, 2)}\n`);
+  await writeFile(
+    join(root, "package.json"),
+    `${JSON.stringify({ name: "emdash-popcase", version, type: "module" }, null, 2)}\n`,
+  );
 }
 
 const missing: typeof fetch = async () => new Response(null, { status: 404 });
-const noLookup: typeof fetch = async () => { throw new Error("Existing tags must not prepare a new release."); };
-const state: ReleaseState = { version: "0.1.6", tag: "v0.1.6", branch: "main", baseSha: "unused", existingTag: true };
+const noLookup: typeof fetch = async () => {
+  throw new Error("Existing tags must not prepare a new release.");
+};
+const state: ReleaseState = {
+  version: "0.1.6",
+  tag: "v0.1.6",
+  branch: "main",
+  baseSha: "unused",
+  existingTag: true,
+};
 
 test("new releases commit the version and atomically push the branch and tag", async () => {
   await fixture(async (root, remote) => {
     const selected = await selectRelease(root, "0.1.6", "main", missing);
     assert.equal(selected.existingTag, false);
     await pushReleaseTag(root, selected);
-    assert.equal(git(remote, "rev-parse", "refs/heads/main"), git(remote, "rev-parse", "refs/tags/v0.1.6"));
+    assert.equal(
+      git(remote, "rev-parse", "refs/heads/main"),
+      git(remote, "rev-parse", "refs/tags/v0.1.6"),
+    );
     assert.equal(JSON.parse(git(remote, "show", "v0.1.6:package.json")).version, "0.1.6");
     assert.equal(git(root, "status", "--porcelain"), "");
     const retry = await selectRelease(root, "0.1.6", "main", noLookup);
@@ -87,7 +111,15 @@ test("a default branch update during verification prevents pushing a release", a
     const selected = await selectRelease(root, "0.1.6", "main", missing);
     git(remote, "config", "user.name", "Concurrent developer");
     git(remote, "config", "user.email", "developer@example.test");
-    const commit = git(remote, "commit-tree", "HEAD^{tree}", "-p", "HEAD", "-m", "Concurrent change");
+    const commit = git(
+      remote,
+      "commit-tree",
+      "HEAD^{tree}",
+      "-p",
+      "HEAD",
+      "-m",
+      "Concurrent change",
+    );
     git(remote, "update-ref", "refs/heads/main", commit);
     await assert.rejects(pushReleaseTag(root, selected), /default branch changed/);
     assert.equal(git(remote, "tag", "--list", "v0.1.6"), "");
@@ -107,10 +139,19 @@ test("a rejected branch push cannot leave a new tag behind", async () => {
 
 test("new versions must exceed the current package, stable tags and npm latest", async () => {
   await fixture(async (root) => {
-    for (const version of ["0.1.5", "0.1.4", "v0.1.6", "0.01.6", "0.1.6-beta.1", "0.1.6\n", "0.1.6; echo bad"]) {
+    for (const version of [
+      "0.1.5",
+      "0.1.4",
+      "v0.1.6",
+      "0.01.6",
+      "0.1.6-beta.1",
+      "0.1.6\n",
+      "0.1.6; echo bad",
+    ]) {
       await assert.rejects(selectRelease(root, version, "main", missing));
     }
-    const latest: typeof fetch = async () => Response.json({ name: "emdash-popcase", version: "0.2.0" });
+    const latest: typeof fetch = async () =>
+      Response.json({ name: "emdash-popcase", version: "0.2.0" });
     await assert.rejects(selectRelease(root, "0.1.6", "main", latest), /newer than/);
     git(root, "tag", "v0.3.0");
     await assert.rejects(selectRelease(root, "0.2.1", "main", missing), /newer than/);
@@ -121,36 +162,64 @@ test("new versions must exceed the current package, stable tags and npm latest",
 test("runtime metadata must match the tagged manifest", async () => {
   await fixture(async (root) => {
     await mkdir(join(root, "dist"));
-    await writeFile(join(root, "dist/index.js"), 'export const popcase = () => ({ version: "0.1.5" }); export const createPlugin = popcase;\n');
+    await writeFile(
+      join(root, "dist/index.js"),
+      'export const popcase = () => ({ version: "0.1.5" }); export const createPlugin = popcase;\n',
+    );
     await verifyRelease(root, { ...state, version: "0.1.5" });
   });
   await fixture(async (root) => {
     await mkdir(join(root, "dist"));
-    await writeFile(join(root, "dist/index.js"), 'export const popcase = () => ({ version: "0.1.0" }); export const createPlugin = () => ({ version: "0.1.5" });\n');
-    await assert.rejects(verifyRelease(root, { ...state, version: "0.1.5" }), /metadata does not match/);
+    await writeFile(
+      join(root, "dist/index.js"),
+      'export const popcase = () => ({ version: "0.1.0" }); export const createPlugin = () => ({ version: "0.1.5" });\n',
+    );
+    await assert.rejects(
+      verifyRelease(root, { ...state, version: "0.1.5" }),
+      /metadata does not match/,
+    );
   });
 });
 
 test("publication status supports npm and Release retries and missing assets", async () => {
   for (const asset of [true, false]) {
-    const request: typeof fetch = async (url) => String(url).includes("registry.npmjs.org")
-      ? Response.json({ name: "emdash-popcase", version: "0.1.6" })
-      : Response.json({ prerelease: false, draft: !asset, assets: asset ? [{ name: "emdash-popcase-0.1.6.tgz" }] : [] });
+    const request: typeof fetch = async (url) =>
+      String(url).includes("registry.npmjs.org")
+        ? Response.json({ name: "emdash-popcase", version: "0.1.6" })
+        : Response.json({
+            prerelease: false,
+            draft: !asset,
+            assets: asset ? [{ name: "emdash-popcase-0.1.6.tgz" }] : [],
+          });
     assert.deepEqual(await publicationState(state, "example/repo", "token", request), {
-      npm_published: true, release_exists: true, release_draft: !asset, asset_exists: asset,
+      npm_published: true,
+      release_exists: true,
+      release_draft: !asset,
+      asset_exists: asset,
     });
   }
   assert.deepEqual(await publicationState(state, "example/repo", "token", missing), {
-    npm_published: false, release_exists: false, release_draft: false, asset_exists: false,
+    npm_published: false,
+    release_exists: false,
+    release_draft: false,
+    asset_exists: false,
   });
 });
 
 test("registry and GitHub lookup failures never count as missing publications", async () => {
   for (const code of [401, 403, 429, 500]) {
     const failure: typeof fetch = async () => new Response(null, { status: code });
-    await assert.rejects(publicationState(state, "example/repo", "token", failure), /lookup failed/);
-    const githubFailure: typeof fetch = async (url) => String(url).includes("registry.npmjs.org")
-      ? new Response(null, { status: 404 }) : new Response(null, { status: code });
-    await assert.rejects(publicationState(state, "example/repo", "token", githubFailure), /lookup failed/);
+    await assert.rejects(
+      publicationState(state, "example/repo", "token", failure),
+      /lookup failed/,
+    );
+    const githubFailure: typeof fetch = async (url) =>
+      String(url).includes("registry.npmjs.org")
+        ? new Response(null, { status: 404 })
+        : new Response(null, { status: code });
+    await assert.rejects(
+      publicationState(state, "example/repo", "token", githubFailure),
+      /lookup failed/,
+    );
   }
 });

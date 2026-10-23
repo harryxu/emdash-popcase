@@ -2,19 +2,36 @@
 import { PortableText } from "emdash/ui";
 import type { ComponentProps } from "astro/types";
 interface Props {
-  node: { columns?: Array<{ width?: string; content: ComponentProps<typeof PortableText>["value"] }> };
+  node: {
+    columns?: Array<{ width?: string; content: ComponentProps<typeof PortableText>["value"] }>;
+  };
 }
 const columns = Astro.props.node?.columns ?? [];
 ---
-{columns.length > 0 && <div class="emdash-columns" style={`--column-count: ${columns.length}`}>
-  {columns.map((column) => <div class="emdash-column" style={column.width ? `flex-basis: ${column.width}` : undefined}>
-    <PortableText value={column.content} />
-  </div>)}
-</div>}
+
+{columns.length > 0 && (
+  <div class="emdash-columns" style={`--column-count: ${columns.length}`}>
+    {columns.map((column) => (
+      <div class="emdash-column" style={column.width ? `flex-basis: ${column.width}` : undefined}>
+        <PortableText value={column.content} />
+      </div>
+    ))}
+  </div>
+)}
 <style>
-  .emdash-columns { display: flex; gap: 2rem; margin: 1.5rem 0; }
-  .emdash-column { flex: 1; min-width: 0; }
+  .emdash-columns {
+    display: flex;
+    gap: 2rem;
+    margin: 1.5rem 0;
+  }
+  .emdash-column {
+    flex: 1;
+    min-width: 0;
+  }
   @media (max-width: 768px) {
-    .emdash-columns { flex-direction: column; gap: 1rem; }
+    .emdash-columns {
+      flex-direction: column;
+      gap: 1rem;
+    }
   }
 </style>

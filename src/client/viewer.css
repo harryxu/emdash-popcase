@@ -105,7 +105,8 @@
   justify-content: center;
   box-sizing: border-box;
   /* Add gutters inside the player area so carousel slide widths stay equal. */
-  padding: clamp(56px, calc(8dvh - 16px), 104px) clamp(0px, calc(6dvw - 16px), 144px) clamp(8px, calc(8dvh - 16px), 104px);
+  padding: clamp(56px, calc(8dvh - 16px), 104px) clamp(0px, calc(6dvw - 16px), 144px)
+    clamp(8px, calc(8dvh - 16px), 104px);
   max-width: 100%;
   min-height: 0;
 

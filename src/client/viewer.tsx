@@ -33,12 +33,26 @@ export function prepareViewer() {
       link.dataset.popcaseStyle = "";
       return link;
     });
-    stylesReady = Promise.all(links.map((link) => new Promise<void>((resolve, reject) => {
-      const timeout = window.setTimeout(() => reject(new Error("Popcase viewer styles timed out.")), 10000);
-      link.onload = () => { clearTimeout(timeout); resolve(); };
-      link.onerror = () => { clearTimeout(timeout); reject(new Error("Popcase could not load viewer styles.")); };
-      document.head.appendChild(link);
-    }))).catch((error) => {
+    stylesReady = Promise.all(
+      links.map(
+        (link) =>
+          new Promise<void>((resolve, reject) => {
+            const timeout = window.setTimeout(
+              () => reject(new Error("Popcase viewer styles timed out.")),
+              10000,
+            );
+            link.onload = () => {
+              clearTimeout(timeout);
+              resolve();
+            };
+            link.onerror = () => {
+              clearTimeout(timeout);
+              reject(new Error("Popcase could not load viewer styles."));
+            };
+            document.head.appendChild(link);
+          }),
+      ),
+    ).catch((error) => {
       links.forEach((link) => link.remove());
       stylesReady = undefined;
       throw error;
@@ -50,41 +64,60 @@ export function prepareViewer() {
 function Viewer({ request }: { request: OpenRequest }) {
   const [open, setOpen] = useState(true);
   const plugins = [
-    Video, Zoom, Counter, Captions,
+    Video,
+    Zoom,
+    Counter,
+    Captions,
     ...(request.config.thumbnails ? [Thumbnails] : []),
   ];
-  return <Lightbox
-    open={open}
-    close={() => {
-      host?.querySelectorAll("video").forEach((video) => video.pause());
-      setOpen(false);
-    }}
-    slides={request.slides}
-    index={request.index}
-    plugins={plugins}
-    className="popcase-viewer"
-    portal={{ root: host, container: { role: "presentation", "aria-modal": undefined, "aria-label": undefined } }}
-    carousel={{ finite: true, preload: 2 }}
-    controller={{ aria: true, closeOnBackdropClick: true }}
-    zoom={{ maxZoomPixelRatio: 1 }}
-    counter={{ separator: "of" }}
-    captions={{ descriptionMaxLines: 3, showToggle: false }}
-    thumbnails={{ position: "bottom", showToggle: false }}
-    video={{ controls: true, playsInline: true, autoPlay: request.config.videoAutoplay, preload: "none" }}
-    render={{
-      ...(request.slides.length === 1 ? { buttonPrev: () => null, buttonNext: () => null } : {}),
-      slide: ({ slide, offset }) => slide.type === "youtube"
-        ? (open && offset === 0
-          ? <YoutubeSlide slide={slide} videoAutoplay={request.config.videoAutoplay} />
-          : <div />)
-        : undefined,
-      thumbnail: ({ slide, rect }) => slide.type === "youtube" ? <YoutubeThumbnail slide={slide} rect={rect} /> : undefined,
-    }}
-    on={{ exited: () => {
-      disposeViewer();
-      if (request.trigger.isConnected) request.trigger.focus({ preventScroll: true });
-    } }}
-  />;
+  return (
+    <Lightbox
+      open={open}
+      close={() => {
+        host?.querySelectorAll("video").forEach((video) => video.pause());
+        setOpen(false);
+      }}
+      slides={request.slides}
+      index={request.index}
+      plugins={plugins}
+      className="popcase-viewer"
+      portal={{
+        root: host,
+        container: { role: "presentation", "aria-modal": undefined, "aria-label": undefined },
+      }}
+      carousel={{ finite: true, preload: 2 }}
+      controller={{ aria: true, closeOnBackdropClick: true }}
+      zoom={{ maxZoomPixelRatio: 1 }}
+      counter={{ separator: "of" }}
+      captions={{ descriptionMaxLines: 3, showToggle: false }}
+      thumbnails={{ position: "bottom", showToggle: false }}
+      video={{
+        controls: true,
+        playsInline: true,
+        autoPlay: request.config.videoAutoplay,
+        preload: "none",
+      }}
+      render={{
+        ...(request.slides.length === 1 ? { buttonPrev: () => null, buttonNext: () => null } : {}),
+        slide: ({ slide, offset }) =>
+          slide.type === "youtube" ? (
+            open && offset === 0 ? (
+              <YoutubeSlide slide={slide} videoAutoplay={request.config.videoAutoplay} />
+            ) : (
+              <div />
+            )
+          ) : undefined,
+        thumbnail: ({ slide, rect }) =>
+          slide.type === "youtube" ? <YoutubeThumbnail slide={slide} rect={rect} /> : undefined,
+      }}
+      on={{
+        exited: () => {
+          disposeViewer();
+          if (request.trigger.isConnected) request.trigger.focus({ preventScroll: true });
+        },
+      }}
+    />
+  );
 }
 
 export function disposeViewer() {
@@ -109,14 +142,25 @@ export function openViewer(request: OpenRequest) {
   });
   host.addEventListener("keydown", (event) => {
     if (event.key !== "Tab" || !host) return;
-    const controls = Array.from(host.querySelectorAll<HTMLElement>(
-      'button:not([disabled]), a[href], video[controls], iframe, input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    )).filter((element) => element.tabIndex >= 0 && element.getClientRects().length > 0 &&
-      getComputedStyle(element).visibility !== "hidden" && !element.closest("[inert]"));
+    const controls = Array.from(
+      host.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), a[href], video[controls], iframe, input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter(
+      (element) =>
+        element.tabIndex >= 0 &&
+        element.getClientRects().length > 0 &&
+        getComputedStyle(element).visibility !== "hidden" &&
+        !element.closest("[inert]"),
+    );
     const first = controls[0];
     const last = controls.at(-1);
-    if (first && last && ((!event.shiftKey && document.activeElement === last) ||
-        (event.shiftKey && document.activeElement === first))) {
+    if (
+      first &&
+      last &&
+      ((!event.shiftKey && document.activeElement === last) ||
+        (event.shiftKey && document.activeElement === first))
+    ) {
       event.preventDefault();
       (event.shiftKey ? last : first).focus();
     }

@@ -66,7 +66,7 @@ For inline HTML, choose the HTML block's "Inline" mode:
 
 ```html
 <a href="/images/full.jpg">
-  <img src="/images/preview.jpg" alt="Image description">
+  <img src="/images/preview.jpg" alt="Image description" />
 </a>
 ```
 
@@ -90,6 +90,8 @@ Use Node.js 24+ and pnpm 12 with the self-contained `example/` site.
 
 ```sh
 pnpm install
+pnpm format         # Format source and documentation
+pnpm format:check   # Check formatting without changing files
 pnpm build          # Compile server code and generate declarations
 pnpm build:example  # Build the example site
 pnpm test
@@ -107,6 +109,5 @@ Rebuild after server code changes when using a linked checkout.
 ## Using a local checkout
 
 Add `"emdash-popcase": "link:../emdash-popcase"` to a sibling site's dependencies. Run `pnpm install` and `pnpm build` in this repository, then install the site's dependencies. After publishing, replace the link with a registry version, for example `pnpm add emdash-popcase@0.1.0`.
-
 
 Source code is licensed under MIT. Dependencies retain their own licenses.

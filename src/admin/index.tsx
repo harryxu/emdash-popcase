@@ -27,9 +27,14 @@ export function SettingsPage() {
       setData(result);
       setThumbnails(result.thumbnails);
       setVideoAutoplay(result.videoAutoplay);
-      setDraft(result.settings.mode === "all" ? result.settings : {
-        mode: "selected", collections: result.settings.collections.filter((slug) => known.has(slug)),
-      });
+      setDraft(
+        result.settings.mode === "all"
+          ? result.settings
+          : {
+              mode: "selected",
+              collections: result.settings.collections.filter((slug) => known.has(slug)),
+            },
+      );
     } catch {
       if (!signal?.aborted) setError("load");
     } finally {
@@ -56,9 +61,13 @@ export function SettingsPage() {
     setSaved(false);
     setError(undefined);
     try {
-      const result = await parseApiResponse<SettingsResponse>(await apiFetch(endpoint, {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...draft, thumbnails, videoAutoplay }),
-      }));
+      const result = await parseApiResponse<SettingsResponse>(
+        await apiFetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...draft, thumbnails, videoAutoplay }),
+        }),
+      );
       if (!result.ok) throw new Error("Failed to save Popcase settings.");
       setData(result);
       setDraft(result.settings);
@@ -76,69 +85,122 @@ export function SettingsPage() {
     <div className="mx-auto w-full max-w-2xl space-y-6 p-4 sm:p-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold text-kumo-default">Popcase settings</h1>
-        <p className="text-sm text-kumo-subtle">Choose content types and viewer behavior. Changes apply to existing and new content after saving.</p>
+        <p className="text-sm text-kumo-subtle">
+          Choose content types and viewer behavior. Changes apply to existing and new content after
+          saving.
+        </p>
       </header>
-      {loading ? <div role="status"><Loader />Loading settings…</div> : !data ? (
+      {loading ? (
+        <div role="status">
+          <Loader />
+          Loading settings…
+        </div>
+      ) : !data ? (
         <div className="space-y-3">
           <p role="alert">Could not load settings. Try again.</p>
           <Button onClick={() => void load()}>Retry</Button>
         </div>
       ) : (
-        <form action={endpoint} method="post" onSubmit={save} className="space-y-6" aria-busy={saving}>
+        <form
+          action={endpoint}
+          method="post"
+          onSubmit={save}
+          className="space-y-6"
+          aria-busy={saving}
+        >
           <fieldset disabled={saving} className="space-y-5">
             <legend className="mb-3 font-medium text-kumo-default">Enable Popcase</legend>
-            <Checkbox name="enableAll" label="Enable all content types"
-              checked={draft.mode === "all"} disabled={saving}
-              onCheckedChange={(checked) => change(checked ? { mode: "all" } : { mode: "selected", collections: [] })} />
-            <p className="text-sm text-kumo-subtle">Enable all includes future content types. Uncheck it to select types individually; new types will stay disabled.</p>
+            <Checkbox
+              name="enableAll"
+              label="Enable all content types"
+              checked={draft.mode === "all"}
+              disabled={saving}
+              onCheckedChange={(checked) =>
+                change(checked ? { mode: "all" } : { mode: "selected", collections: [] })
+              }
+            />
+            <p className="text-sm text-kumo-subtle">
+              Enable all includes future content types. Uncheck it to select types individually; new
+              types will stay disabled.
+            </p>
             <fieldset disabled={saving || draft.mode === "all"} className="space-y-2">
               <legend className="mb-3 text-sm font-medium text-kumo-default">Content types</legend>
               {data.collections.map(({ slug, label }) => (
                 <div key={slug} className="py-2 break-words">
-                  <Checkbox name={slug} label={`${label} (${slug})`}
+                  <Checkbox
+                    name={slug}
+                    label={`${label} (${slug})`}
                     checked={draft.mode === "all" || draft.collections.includes(slug)}
                     disabled={saving || draft.mode === "all"}
                     onCheckedChange={(checked) => {
                       if (draft.mode !== "selected") return;
-                      change({ mode: "selected", collections: checked
-                        ? [...draft.collections, slug] : draft.collections.filter((value) => value !== slug) });
-                    }} />
+                      change({
+                        mode: "selected",
+                        collections: checked
+                          ? [...draft.collections, slug]
+                          : draft.collections.filter((value) => value !== slug),
+                      });
+                    }}
+                  />
                 </div>
               ))}
-              {data.collections.length === 0 && <p className="text-sm text-kumo-subtle">No content types yet.</p>}
+              {data.collections.length === 0 && (
+                <p className="text-sm text-kumo-subtle">No content types yet.</p>
+              )}
             </fieldset>
           </fieldset>
           <fieldset disabled={saving} className="space-y-3">
             <legend className="mb-3 font-medium text-kumo-default">Image viewer</legend>
-            <Checkbox name="thumbnails" label="Enable thumbnails" checked={thumbnails} disabled={saving}
+            <Checkbox
+              name="thumbnails"
+              label="Enable thumbnails"
+              checked={thumbnails}
+              disabled={saving}
               onCheckedChange={(checked) => {
                 setThumbnails(checked === true);
                 setSaved(false);
                 setError(undefined);
-              }} />
-            <p className="text-sm text-kumo-subtle">Show clickable thumbnails at the bottom of the image viewer.</p>
+              }}
+            />
+            <p className="text-sm text-kumo-subtle">
+              Show clickable thumbnails at the bottom of the image viewer.
+            </p>
           </fieldset>
           <fieldset disabled={saving} className="space-y-3">
             <legend className="mb-3 font-medium text-kumo-default">Video playback</legend>
-            <Checkbox name="videoAutoplay" label="Autoplay videos" checked={videoAutoplay} disabled={saving}
+            <Checkbox
+              name="videoAutoplay"
+              label="Autoplay videos"
+              checked={videoAutoplay}
+              disabled={saving}
               onCheckedChange={(checked) => {
                 setVideoAutoplay(checked === true);
                 setSaved(false);
                 setError(undefined);
-              }} />
-            <p className="text-sm text-kumo-subtle">Automatically play linked video files and YouTube videos when opened or selected in the viewer.</p>
+              }}
+            />
+            <p className="text-sm text-kumo-subtle">
+              Automatically play linked video files and YouTube videos when opened or selected in
+              the viewer.
+            </p>
           </fieldset>
           <p role="status" className="text-sm text-kumo-subtle">
             {draft.mode === "selected" && draft.collections.length === 0
               ? "Popcase is disabled for all content types in this selection. Save to apply."
               : "Selections take effect only after saving."}
           </p>
-          {error === "save" && <p role="alert">Could not save settings. Your selections are preserved; please retry.</p>}
+          {error === "save" && (
+            <p role="alert">
+              Could not save settings. Your selections are preserved; please retry.
+            </p>
+          )}
           <div className="flex flex-wrap items-center gap-3">
             <Button type="submit" variant="primary" disabled={saving}>
               {saving ? "Saving…" : "Save settings"}
             </Button>
-            <span role="status" className="text-sm text-kumo-subtle">{saved ? "Settings saved." : ""}</span>
+            <span role="status" className="text-sm text-kumo-subtle">
+              {saved ? "Settings saved." : ""}
+            </span>
           </div>
         </form>
       )}

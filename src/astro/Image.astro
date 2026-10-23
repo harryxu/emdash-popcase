@@ -3,4 +3,7 @@ import { PTImage } from "emdash/ui";
 import Enhance from "./Enhance.astro";
 const { node, ...rest } = Astro.props;
 ---
-<Enhance nodes={[node]}><PTImage node={node} {...rest} /></Enhance>
+
+<Enhance nodes={[node]}>
+  <PTImage node={node} {...rest} />
+</Enhance>

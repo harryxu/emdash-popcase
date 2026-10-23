@@ -16,8 +16,5 @@
     "types": ["astro/client"],
     "noEmitOnError": true
   },
-  "files": [
-    "src/index.ts",
-    "src/middleware.ts"
-  ]
+  "files": ["src/index.ts", "src/middleware.ts"]
 }

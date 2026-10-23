@@ -8,7 +8,10 @@ export async function prepareHost(tarball: string | undefined) {
   const target = await mkdtemp(join(tmpdir(), "emdash-popcase-consumer-"));
   await cp(new URL("../example/", import.meta.url), target, {
     recursive: true,
-    filter: (source) => !/(?:^|[/\\])(?:node_modules|dist|\.astro|\.emdash|uploads|data\.db(?:-.*)?)(?:[/\\]|$)/.test(source),
+    filter: (source) =>
+      !/(?:^|[/\\])(?:node_modules|dist|\.astro|\.emdash|uploads|data\.db(?:-.*)?)(?:[/\\]|$)/.test(
+        source,
+      ),
   });
   const manifestPath = join(target, "package.json");
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
