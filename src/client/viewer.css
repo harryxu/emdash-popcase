@@ -119,3 +119,24 @@
     background: #000;
   }
 }
+
+@media (max-width: 767px) and (orientation: portrait) and (pointer: coarse) {
+  .popcase-viewer:has(.popcase-youtube) {
+    --yarl__controller_touch_action: pan-y;
+  }
+
+  .popcase-youtube {
+    margin-inline: calc(var(--yarl__carousel_padding_px, 16) * -1px);
+    margin-block-start: clamp(56px, calc(8dvh - 16px), 104px);
+    max-width: none;
+    padding-inline: 0;
+    padding-block-start: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+
+    & iframe {
+      width: 100cqw;
+      margin-block: auto;
+    }
+  }
+}
