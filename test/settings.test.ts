@@ -98,7 +98,12 @@ test("empty selection disables everything and all mode discards any saved whitel
   await request("POST", { mode: "all", collections: ["posts"] });
   assert.deepEqual(
     [...values],
-    [["contentTypes", { mode: "all", thumbnails: false, videoAutoplay: true }]],
+    [
+      [
+        "contentTypes",
+        { mode: "all", thumbnails: false, videoAutoplay: true, photoInformation: true },
+      ],
+    ],
   );
   assert.match(await render("notes"), /data-popcase=/);
   await request("POST", { mode: "selected", collections: [] });
@@ -216,6 +221,7 @@ test("video autoplay persists with thumbnails and content types and reaches page
       collections: ["posts"],
       thumbnails: true,
       videoAutoplay,
+      photoInformation: true,
     });
     assert.ok((await render("posts")).includes(`&quot;videoAutoplay&quot;:${videoAutoplay}`));
     assert.doesNotMatch(await render("pages"), /data-popcase=/);
@@ -240,4 +246,36 @@ test("invalid autoplay values leave all saved settings unchanged and invalid sto
   }
   values.set("contentTypes", { mode: "all", videoAutoplay: "false" });
   await assert.rejects(render("posts"), /Invalid Popcase video autoplay settings/);
+});
+
+test("photo information defaults on for fresh and legacy settings, saves atomically, and reaches public HTML", async () => {
+  const { request, read, render, values } = fixture();
+  assert.equal((await read()).photoInformation, true);
+  values.set("contentTypes", { mode: "all", thumbnails: true, videoAutoplay: false });
+  assert.equal((await read()).photoInformation, true);
+  for (const photoInformation of [false, true]) {
+    const result = await request("POST", {
+      mode: "selected",
+      collections: ["posts"],
+      thumbnails: true,
+      videoAutoplay: false,
+      photoInformation,
+    });
+    assert.ok(result.ok);
+    assert.equal(result.photoInformation, photoInformation);
+    assert.equal((await read()).photoInformation, photoInformation);
+    assert.equal((await read()).thumbnails, true);
+    assert.equal((await read()).videoAutoplay, false);
+    assert.ok((await render("posts")).includes(`&quot;photoInformation&quot;:${photoInformation}`));
+  }
+  const saved = await read();
+  for (const photoInformation of [undefined, null, "false", 0, [], {}]) {
+    assert.deepEqual(await request("POST", { mode: "all", photoInformation }), {
+      ok: false,
+      error: "INVALID_SETTINGS",
+    });
+    assert.deepEqual(await read(), saved);
+  }
+  values.set("contentTypes", { mode: "all", photoInformation: "false" });
+  await assert.rejects(render("posts"), /Invalid Popcase photo information settings/);
 });

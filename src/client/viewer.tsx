@@ -11,6 +11,9 @@ import counterStyles from "yet-another-react-lightbox/plugins/counter.css?url";
 import captionStyles from "yet-another-react-lightbox/plugins/captions.css?url";
 import thumbnailStyles from "yet-another-react-lightbox/plugins/thumbnails.css?url";
 import viewerStyles from "./viewer.css?url";
+import Exif from "../exif/index.js";
+import exifStyles from "../exif/exif.css?url";
+import { readPhotoInformation } from "./photo-information.js";
 import type { OpenRequest } from "./group";
 import { YoutubeSlide, YoutubeThumbnail } from "./youtube";
 
@@ -20,7 +23,14 @@ let stylesReady: Promise<unknown> | undefined;
 
 export function prepareViewer() {
   const existing = document.querySelectorAll("link[data-popcase-style]");
-  const styles = [lightboxStyles, counterStyles, captionStyles, thumbnailStyles, viewerStyles];
+  const styles = [
+    lightboxStyles,
+    counterStyles,
+    captionStyles,
+    thumbnailStyles,
+    viewerStyles,
+    exifStyles,
+  ];
   if (stylesReady && existing.length !== styles.length) {
     existing.forEach((link) => link.remove());
     stylesReady = undefined;
@@ -69,6 +79,7 @@ function Viewer({ request }: { request: OpenRequest }) {
     Counter,
     Captions,
     ...(request.config.thumbnails ? [Thumbnails] : []),
+    ...(request.config.photoInformation ? [Exif] : []),
   ];
   return (
     <Lightbox
@@ -91,6 +102,7 @@ function Viewer({ request }: { request: OpenRequest }) {
       counter={{ separator: "of" }}
       captions={{ descriptionMaxLines: 3, showToggle: false }}
       thumbnails={{ position: "bottom", showToggle: false }}
+      exif={{ load: readPhotoInformation }}
       video={{
         controls: true,
         playsInline: true,

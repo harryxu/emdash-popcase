@@ -1,0 +1,73 @@
+---
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Standalone EXIF plugin verification</title>
+  </head>
+  <body>
+    <h1>Standalone EXIF plugin</h1>
+    <p>This example supplies photo information directly, without an EmDash data loader.</p>
+    <button id="open-exif" type="button">
+      Open standalone viewer
+    </button>
+    <div id="standalone-viewer"></div>
+    <script>
+      import React from "react";
+      import { createRoot } from "react-dom/client";
+      import Lightbox from "yet-another-react-lightbox";
+      import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
+      import Zoom from "yet-another-react-lightbox/plugins/zoom";
+      import Captions from "yet-another-react-lightbox/plugins/captions";
+      import { Exif } from "emdash-popcase/exif";
+      import "yet-another-react-lightbox/styles.css";
+      import "yet-another-react-lightbox/plugins/thumbnails.css";
+      import "yet-another-react-lightbox/plugins/captions.css";
+      import "emdash-popcase/exif.css";
+
+      const element = document.getElementById("standalone-viewer")!;
+      const root = createRoot(element);
+      const trigger = document.getElementById("open-exif")!;
+      trigger.addEventListener("click", () => {
+        root.render(
+          React.createElement(Lightbox, {
+            open: true,
+            close: () => {
+              root.render(null);
+              trigger.focus();
+            },
+            plugins: [Thumbnails, Zoom, Captions, Exif],
+            slides: [
+              {
+                src: "/__popcase-images/photo.jpg",
+                width: 1200,
+                height: 800,
+                description: "Synthetic image with supplied photography information",
+                exif: {
+                  camera: "Popcase Camera One",
+                  lens: "Popcase 50mm F2.8 Test Lens",
+                  focalLength: 50,
+                  aperture: 2.8,
+                  exposureTime: 1 / 250,
+                  iso: 400,
+                  capturedAt: { dateTime: "2026-10-23T15:04:05", offset: "+08:00" },
+                },
+              },
+            ],
+          }),
+        );
+      });
+    </script>
+    <style is:global>
+      :root {
+        font-family: system-ui, sans-serif;
+      }
+      body {
+        margin: 32px;
+      }
+    </style>
+  </body>
+</html>

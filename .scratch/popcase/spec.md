@@ -76,6 +76,10 @@ Keep the core HTML sanitization behavior. An isolated HTML block is not part of 
 
 ## Viewing groups and interaction
 
+### Photo information (2026-10-23)
+
+Add the default-enabled `photoInformation` admin setting and an initially collapsed photography information panel. Its standalone YARL export, seven fields, actual viewer-image ownership, browser-only acquisition, format support, limits, caching, layout, and keyboard behavior are specified in [the EXIF feature specification](../popcase-exif/spec.md). Save the boolean atomically with existing settings; absent legacy values default to true. The panel has its own Lucide information control and does not replace captions. See [ADR-0006](../../docs/adr/0006-separate-photo-information-display-from-emdash.md).
+
 - One viewing group per content page, ordered by body placement, including gallery and supported nested images.
 - Treat repeated appearances of the same source as separate positions; do not deduplicate by URL.
 - Open at the selected occurrence.

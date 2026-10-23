@@ -32,6 +32,9 @@ try {
     "src/client/viewer.tsx",
     "src/admin/index.tsx",
     "src/settings.ts",
+    "dist/exif/index.js",
+    "dist/exif/index.d.ts",
+    "src/exif/exif.css",
   ]) {
     assert.ok(files.includes(required), `Missing package file: ${required}`);
   }
@@ -112,6 +115,7 @@ try {
     ["?case=video", 3],
     ["?case=youtube-text", 1],
     ["?case=youtube", 5],
+    ["?case=exif", 9],
   ]) {
     const response = await fetch(`${origin}/${query}`);
     assert.equal(response.status, 200);
@@ -121,6 +125,11 @@ try {
       assert.ok(
         html.includes("&quot;videoAutoplay&quot;:true"),
         "Default autoplay must reach the installed client configuration.",
+      );
+    if (Number(expected) > 0)
+      assert.ok(
+        html.includes("&quot;photoInformation&quot;:true"),
+        "Default photo information must reach the installed client configuration.",
       );
     assert.ok(!html.includes("<!--popcase:") && !html.includes("data-popcase-page"));
     if (query === "?case=video-text") {
@@ -137,6 +146,17 @@ try {
       assert.ok(!/<iframe\b/.test(html), "YouTube players must not load before interaction.");
     }
   }
+  const standalone = await fetch(`${origin}/standalone-exif`);
+  assert.equal(standalone.status, 200);
+  const standaloneHtml = await standalone.text();
+  assert.ok(standaloneHtml.includes("Open standalone viewer"));
+  const assets = [...standaloneHtml.matchAll(/(?:src|href)="([^"#]+\.(?:js|css))"/g)].map(
+    (match) => match[1]!,
+  );
+  assert.ok(
+    assets.some((asset) => asset.endsWith(".js")) && assets.some((asset) => asset.endsWith(".css")),
+  );
+  for (const asset of assets) assert.equal((await fetch(new URL(asset, origin))).status, 200);
   console.log("Packed plugin installs, builds, and renders independently.");
 } finally {
   if (server && server.exitCode === null) {

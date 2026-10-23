@@ -1,6 +1,7 @@
 export interface PopcaseConfig {
   thumbnails: boolean;
   videoAutoplay: boolean;
+  photoInformation: boolean;
 }
 
 export type ContentTypes = { mode: "all" } | { mode: "selected"; collections: string[] };
@@ -11,6 +12,7 @@ export type SettingsResponse =
       settings: ContentTypes;
       thumbnails: boolean;
       videoAutoplay: boolean;
+      photoInformation: boolean;
       collections: { slug: string; label: string }[];
     }
   | { ok: false; error: "INVALID_SETTINGS" | "UNKNOWN_CONTENT_TYPE" };
