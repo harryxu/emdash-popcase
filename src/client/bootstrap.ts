@@ -1,3 +1,4 @@
+import { focusElement } from "../exif/focus.js";
 import { collectGroup } from "./group";
 import { normalizeConfig } from "../config.js";
 
@@ -31,7 +32,8 @@ document.addEventListener("click", async (event) => {
   event.preventDefault();
   const request = ++sequence;
   anchor.setAttribute("aria-busy", "true");
-  anchor.focus();
+  const keyboard = event.detail === 0;
+  focusElement(anchor, keyboard);
   try {
     if (import.meta.env.DEV) await import("@vitejs/plugin-react/preamble");
     viewer = await import("./viewer");
@@ -42,6 +44,7 @@ document.addEventListener("click", async (event) => {
       index,
       config: normalizeConfig(JSON.parse(anchor.dataset.popcaseConfig ?? "{}")),
       trigger: anchor,
+      keyboard,
     });
   } catch (error) {
     if (request === sequence && anchor.isConnected) {

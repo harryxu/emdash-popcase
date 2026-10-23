@@ -12,6 +12,7 @@ import counterStyles from "yet-another-react-lightbox/plugins/counter.css?url";
 import captionStyles from "yet-another-react-lightbox/plugins/captions.css?url";
 import thumbnailStyles from "yet-another-react-lightbox/plugins/thumbnails.css?url";
 import viewerStyles from "./viewer.css?url";
+import { focusElement } from "../exif/focus.js";
 import Exif from "../exif/index.js";
 import exifStyles from "../exif/exif.css?url";
 import { readPhotoInformation } from "./photo-information.js";
@@ -72,7 +73,7 @@ export function prepareViewer() {
   return stylesReady;
 }
 
-function Viewer({ request }: { request: OpenRequest }) {
+function Viewer({ request, restoreFocus }: { request: OpenRequest; restoreFocus: () => void }) {
   const [open, setOpen] = useState(true);
   const plugins = [
     Video,
@@ -133,7 +134,7 @@ function Viewer({ request }: { request: OpenRequest }) {
       on={{
         exited: () => {
           disposeViewer();
-          if (request.trigger.isConnected) request.trigger.focus({ preventScroll: true });
+          restoreFocus();
         },
       }}
     />
@@ -151,14 +152,32 @@ export function disposeViewer() {
 
 export function openViewer(request: OpenRequest) {
   disposeViewer();
+  let keyboardInput = request.keyboard;
+  const restoreFocus = () => {
+    if (request.trigger.isConnected) focusElement(request.trigger, keyboardInput);
+  };
   host = document.createElement("dialog");
+  host.addEventListener(
+    "pointerdown",
+    () => {
+      keyboardInput = false;
+    },
+    true,
+  );
+  host.addEventListener(
+    "keydown",
+    () => {
+      keyboardInput = true;
+    },
+    true,
+  );
   host.dataset.popcaseRoot = "";
   host.className = "popcase-dialog";
   host.setAttribute("aria-label", "Lightbox");
   host.addEventListener("cancel", (event) => {
     event.preventDefault();
     disposeViewer();
-    if (request.trigger.isConnected) request.trigger.focus({ preventScroll: true });
+    restoreFocus();
   });
   host.addEventListener("keydown", (event) => {
     if (event.key !== "Tab" || !host) return;
@@ -188,5 +207,5 @@ export function openViewer(request: OpenRequest) {
   document.body.appendChild(host);
   host.showModal();
   root = createRoot(host);
-  root.render(<Viewer request={request} />);
+  root.render(<Viewer request={request} restoreFocus={restoreFocus} />);
 }

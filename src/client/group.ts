@@ -49,4 +49,5 @@ export interface OpenRequest {
   index: number;
   config: PopcaseConfig;
   trigger: HTMLAnchorElement;
+  keyboard: boolean;
 }

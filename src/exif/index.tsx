@@ -36,6 +36,8 @@ import {
   type PhotoInformation,
 } from "./information.js";
 
+import { focusElement } from "./focus.js";
+
 export type { ExifLoadResult, PhotoInformation, PhotoInformationField } from "./information.js";
 
 export interface ExifOptions {
@@ -57,7 +59,7 @@ declare module "yet-another-react-lightbox" {
 
 interface ExifContextValue {
   expanded: boolean;
-  toggle: () => void;
+  toggle: (keyboard: boolean) => void;
   panelId: string;
   button: RefObject<HTMLButtonElement | null>;
 }
@@ -76,7 +78,7 @@ function ExifButton() {
       title="Photo information"
       aria-expanded={context.expanded}
       aria-controls={context.panelId}
-      onClick={context.toggle}
+      onClick={(event) => context.toggle(event.detail === 0)}
     >
       <Info className="yarl__icon" aria-hidden="true" strokeWidth={1.7} />
     </button>
@@ -158,6 +160,7 @@ function ExifLayout({ children }: ComponentProps) {
   const button = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLElement>(null);
   const focusOnExpand = useRef(false);
+  const keyboardInput = useRef(false);
   const panelId = useId();
   const image = currentSlide && isImageSlide(currentSlide) ? currentSlide : undefined;
   const visible = open && expanded && !!image;
@@ -166,7 +169,7 @@ function ExifLayout({ children }: ComponentProps) {
 
   const collapse = () => {
     setExpanded(false);
-    button.current?.focus({ preventScroll: true });
+    if (button.current) focusElement(button.current, keyboardInput.current);
   };
 
   useEffect(() => {
@@ -179,7 +182,7 @@ function ExifLayout({ children }: ComponentProps) {
 
   useEffect(() => {
     if (visible && focusOnExpand.current) {
-      panel.current?.focus({ preventScroll: true });
+      if (panel.current) focusElement(panel.current, keyboardInput.current);
       focusOnExpand.current = false;
     }
   }, [visible]);
@@ -228,7 +231,8 @@ function ExifLayout({ children }: ComponentProps) {
     expanded,
     panelId,
     button,
-    toggle: () => {
+    toggle: (keyboard) => {
+      keyboardInput.current = keyboard;
       if (expanded) collapse();
       else {
         focusOnExpand.current = true;
@@ -239,7 +243,16 @@ function ExifLayout({ children }: ComponentProps) {
 
   return (
     <ExifContext.Provider value={context}>
-      <div className="yarl__exif_layout" data-expanded={visible || undefined}>
+      <div
+        className="yarl__exif_layout"
+        data-expanded={visible || undefined}
+        onPointerDownCapture={() => {
+          keyboardInput.current = false;
+        }}
+        onKeyDownCapture={() => {
+          keyboardInput.current = true;
+        }}
+      >
         <div className="yarl__exif_viewport">{children as ReactNode}</div>
         {visible && (
           <aside
@@ -272,7 +285,7 @@ function ExifLayout({ children }: ComponentProps) {
               <Information
                 result={result}
                 retry={() => {
-                  panel.current?.focus({ preventScroll: true });
+                  if (panel.current) focusElement(panel.current, keyboardInput.current);
                   if (image) cache.current.delete(image.src);
                   setLoaded(undefined);
                   setAttempt((value) => value + 1);

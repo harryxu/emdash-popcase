@@ -246,3 +246,7 @@
     animation: none;
   }
 }
+
+.yarl__exif_layout [data-popcase-pointer-focus]:focus {
+  outline: none;
+}
