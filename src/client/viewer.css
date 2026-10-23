@@ -29,6 +29,9 @@
   --yarl__slide_description_color: #ddd;
   --yarl__counter_color: #eee;
   --yarl__counter_filter: none;
+  --yarl__thumbnails_thumbnail_border: 2px;
+  --yarl__thumbnails_thumbnail_border_color: #555960;
+  --yarl__thumbnails_thumbnail_active_border_color: #f1f1f2;
   font-family: var(--font-body, system-ui, sans-serif);
 
   & .yarl__button .yarl__icon {
