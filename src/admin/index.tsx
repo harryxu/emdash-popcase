@@ -123,7 +123,11 @@ export function SettingsPage() {
               Enable all includes future content types. Uncheck it to select types individually; new
               types will stay disabled.
             </p>
-            <fieldset disabled={saving || draft.mode === "all"} className="space-y-2">
+            <fieldset
+              disabled={saving || draft.mode === "all"}
+              className="space-y-2"
+              style={{ marginInlineStart: "1.5rem" }}
+            >
               <legend className="mb-3 text-sm font-medium text-kumo-default">Content types</legend>
               {data.collections.map(({ slug, label }) => (
                 <div key={slug} className="py-2 break-words">
