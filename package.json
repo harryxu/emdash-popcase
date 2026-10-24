@@ -46,7 +46,6 @@
   ],
   "scripts": {
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
     "dev": "pnpm build && pnpm --dir example dev",
     "build": "tsc -p tsconfig.build.json",
     "build:example": "pnpm build && pnpm --dir example build",

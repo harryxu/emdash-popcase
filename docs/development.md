@@ -5,7 +5,6 @@ Use Node.js 24+ and pnpm 12 with the self-contained `example/` site.
 ```sh
 pnpm install
 pnpm format         # Format source and documentation
-pnpm format:check   # Check formatting without changing files
 pnpm build          # Compile server code and generate declarations
 pnpm build:example  # Build the example site
 pnpm test
