@@ -1,6 +1,6 @@
 {
   "name": "emdash-popcase",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A native EmDash image viewer powered by Yet Another React Lightbox.",
   "license": "MIT",
   "keywords": [
