@@ -39,7 +39,9 @@ export default defineConfig({
 });
 ```
 
-Rebuild and redeploy, then open Popcase in the admin sidebar to adjust viewer settings. See the [setup guide](docs/usage.md) for integration requirements and configuration details.
+Rebuild and redeploy. See the [setup guide](docs/usage.md) for integration requirements and configuration details.
+
+To adjust viewer settings, open Popcase in the admin sidebar or visit `/_emdash/admin/plugins/popcase/settings`.
 
 ## Screenshots
 
