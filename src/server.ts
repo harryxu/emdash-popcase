@@ -1,6 +1,6 @@
 import { parseHTML } from "linkedom";
 import { imageSource, isImageDestination, positiveDimension, safeImageUrl } from "./images.js";
-import { decodeMarker } from "./markers.js";
+import { decodeMarker, encodeMarker } from "./markers.js";
 import { videoSource } from "./videos.js";
 import { youtubeSource } from "./youtube.js";
 
@@ -79,7 +79,12 @@ export function enhanceResponse(html: string, base: string): string {
   let config: PopcaseConfig | undefined;
   const content = html.replace(/<template data-popcase-page>([^<]*)<\/template>/g, (_, encoded) => {
     try {
-      config = decodeMarker<PopcaseConfig>(encoded);
+      const { customCss, ...viewerConfig } = decodeMarker<PopcaseConfig & { customCss?: string }>(
+        encoded,
+      );
+      config = viewerConfig;
+      if (typeof customCss === "string" && customCss.trim())
+        return `<template data-popcase-custom-css>${encodeMarker(customCss)}</template>`;
     } catch {
       config = undefined;
     }

@@ -41,7 +41,7 @@ export function createPlugin() {
           kind: "html",
           placement: "head",
           key: "popcase-page",
-          html: `<template data-popcase-page>${encodeMarker(normalizeConfig(settings))}</template>`,
+          html: `<template data-popcase-page>${encodeMarker({ ...normalizeConfig(settings), customCss: settings.customCss })}</template>`,
         };
       },
     },

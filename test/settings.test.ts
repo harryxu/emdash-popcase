@@ -101,7 +101,13 @@ test("empty selection disables everything and all mode discards any saved whitel
     [
       [
         "contentTypes",
-        { mode: "all", thumbnails: false, videoAutoplay: true, photoInformation: true },
+        {
+          mode: "all",
+          thumbnails: false,
+          videoAutoplay: true,
+          photoInformation: true,
+          customCss: "",
+        },
       ],
     ],
   );
@@ -222,10 +228,63 @@ test("video autoplay persists with thumbnails and content types and reaches page
       thumbnails: true,
       videoAutoplay,
       photoInformation: true,
+      customCss: "",
     });
     assert.ok((await render("posts")).includes(`&quot;videoAutoplay&quot;:${videoAutoplay}`));
     assert.doesNotMatch(await render("pages"), /data-popcase=/);
   }
+});
+
+test("custom CSS defaults empty, persists atomically, and can be cleared", async () => {
+  const { request, read, render, values } = fixture();
+  assert.equal((await read()).customCss, "");
+  values.set("contentTypes", { mode: "all" });
+  assert.equal((await read()).customCss, "");
+  const customCss = `.yarl__toolbar { padding: 20px; }\n/*${"Large stylesheet. ".repeat(4096)}*/`;
+  const result = await request("POST", {
+    mode: "selected",
+    collections: ["posts"],
+    thumbnails: true,
+    customCss,
+  });
+  assert.ok(result.ok);
+  assert.equal(result.customCss, customCss);
+  assert.equal((await read()).customCss, customCss);
+  assert.equal((await read()).thumbnails, true);
+  assert.match(await render("posts"), /data-popcase-custom-css/);
+  assert.doesNotMatch(await render("pages"), /data-popcase-custom-css/);
+  await request("POST", { mode: "all", customCss: "" });
+  assert.equal((await read()).customCss, "");
+  assert.doesNotMatch(await render("posts"), /data-popcase-custom-css/);
+});
+
+test("invalid custom CSS rejects the entire save and reports the error", async () => {
+  const { request, read, render, values } = fixture();
+  await request("POST", {
+    mode: "selected",
+    collections: ["posts"],
+    thumbnails: true,
+    customCss: "button { color: red; }",
+  });
+  const saved = await read();
+  for (const customCss of [
+    undefined,
+    null,
+    1,
+    [],
+    {},
+    "button {",
+    "color red;",
+    "/* unclosed",
+    "}\nbody { color: red; }\n.popcase {",
+  ]) {
+    const result = await request("POST", { mode: "all", thumbnails: false, customCss });
+    assert.ok(!result.ok && result.error === "INVALID_CUSTOM_CSS");
+    assert.ok(result.message.length > 0);
+    assert.deepEqual(await read(), saved);
+  }
+  values.set("contentTypes", { mode: "all", customCss: 123 });
+  await assert.rejects(render("posts"), /Invalid Popcase custom CSS settings/);
 });
 
 test("invalid autoplay values leave all saved settings unchanged and invalid stored values fail", async () => {

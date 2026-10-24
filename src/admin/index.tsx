@@ -1,7 +1,14 @@
 import { Button, Checkbox, Loader, Switch } from "@cloudflare/kumo";
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
-import { Check, Save } from "lucide-react";
-import { useCallback, useEffect, useState, type ReactNode, type SyntheticEvent } from "react";
+import { Check, ChevronDown, Save } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type SyntheticEvent,
+} from "react";
 
 import type { ContentTypes, SettingsResponse } from "../types.js";
 
@@ -13,6 +20,10 @@ export function SettingsPage() {
   const [thumbnails, setThumbnails] = useState(false);
   const [videoAutoplay, setVideoAutoplay] = useState(true);
   const [photoInformation, setPhotoInformation] = useState(true);
+  const [customCss, setCustomCss] = useState("");
+  const [customCssError, setCustomCssError] = useState<string>();
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const customCssInput = useRef<HTMLTextAreaElement>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<"load" | "save">();
@@ -30,6 +41,7 @@ export function SettingsPage() {
       setThumbnails(result.thumbnails);
       setVideoAutoplay(result.videoAutoplay);
       setPhotoInformation(result.photoInformation);
+      setCustomCss(result.customCss);
       setDraft(
         result.settings.mode === "all"
           ? result.settings
@@ -51,6 +63,10 @@ export function SettingsPage() {
     return () => controller.abort();
   }, [load]);
 
+  useEffect(() => {
+    if (customCssError) customCssInput.current?.focus();
+  }, [customCssError]);
+
   const change = (value: ContentTypes) => {
     setDraft(value);
     setSaved(false);
@@ -71,7 +87,8 @@ export function SettingsPage() {
           draft.collections.some((slug) => !savedCollections.includes(slug)))) ||
       thumbnails !== data.thumbnails ||
       videoAutoplay !== data.videoAutoplay ||
-      photoInformation !== data.photoInformation),
+      photoInformation !== data.photoInformation ||
+      customCss !== data.customCss),
   );
 
   const save = async (event: SyntheticEvent<HTMLFormElement>) => {
@@ -80,20 +97,35 @@ export function SettingsPage() {
     setSaving(true);
     setSaved(false);
     setError(undefined);
+    setCustomCssError(undefined);
     try {
       const result = await parseApiResponse<SettingsResponse>(
         await apiFetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...draft, thumbnails, videoAutoplay, photoInformation }),
+          body: JSON.stringify({
+            ...draft,
+            thumbnails,
+            videoAutoplay,
+            photoInformation,
+            customCss,
+          }),
         }),
       );
-      if (!result.ok) throw new Error("Failed to save Popcase settings.");
+      if (!result.ok) {
+        if (result.error === "INVALID_CUSTOM_CSS") {
+          setAdvancedOpen(true);
+          setCustomCssError(result.message);
+          return;
+        }
+        throw new Error("Failed to save Popcase settings.");
+      }
       setData(result);
       setDraft(result.settings);
       setThumbnails(result.thumbnails);
       setVideoAutoplay(result.videoAutoplay);
       setPhotoInformation(result.photoInformation);
+      setCustomCss(result.customCss);
       setSaved(true);
     } catch {
       setError("save");
@@ -235,6 +267,77 @@ export function SettingsPage() {
               }}
             />
           </SettingsSection>
+          <details
+            className="group min-w-0"
+            open={advancedOpen}
+            onToggle={(event) => setAdvancedOpen(event.currentTarget.open)}
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-sm text-lg font-semibold leading-6 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current [&::-webkit-details-marker]:hidden">
+              Advanced
+              <ChevronDown
+                size={20}
+                className="shrink-0 group-open:rotate-180"
+                aria-hidden="true"
+              />
+            </summary>
+            <div className="mt-3 rounded-xl border border-kumo-line bg-kumo-base px-4 py-4">
+              <label htmlFor="popcase-custom-css" className="text-sm font-medium">
+                Custom CSS
+              </label>
+              <p
+                id="popcase-custom-css-description"
+                className="mt-1.5 max-w-2xl text-sm leading-5 text-pretty text-kumo-subtle"
+              >
+                Add CSS rules to override the viewer styles. Applied only while the lightbox is
+                open, after its default styles. Clear this field and save to restore defaults.
+              </p>
+              <textarea
+                ref={customCssInput}
+                id="popcase-custom-css"
+                name="customCss"
+                rows={10}
+                spellCheck={false}
+                autoCapitalize="off"
+                autoCorrect="off"
+                disabled={saving}
+                value={customCss}
+                placeholder={".yarl__toolbar {\n  padding: 20px;\n}"}
+                aria-invalid={Boolean(customCssError)}
+                aria-describedby={`popcase-custom-css-description popcase-custom-css-safety popcase-custom-css-nesting${customCssError ? " popcase-custom-css-error" : ""}`}
+                className="mt-3 block min-h-56 w-full resize-y rounded-lg border border-kumo-line bg-kumo-base p-3 font-mono text-sm leading-6 text-kumo-default placeholder:text-kumo-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-50 aria-invalid:border-kumo-danger"
+                onChange={(event) => {
+                  setCustomCss(event.target.value);
+                  setCustomCssError(undefined);
+                  setSaved(false);
+                  setError(undefined);
+                }}
+              />
+              <p
+                id="popcase-custom-css-nesting"
+                className="mt-2 text-sm leading-5 text-kumo-subtle"
+              >
+                Rules use native CSS nesting under the Popcase root. Use &amp; to target the root
+                itself.
+              </p>
+              <p
+                id="popcase-custom-css-safety"
+                className="mt-3 max-w-2xl text-sm leading-5 text-pretty text-kumo-subtle"
+              >
+                Only add CSS you trust. Nesting is not a security boundary: advanced selectors can
+                affect other parts of the page. You are responsible for the safety of your CSS.
+                Resource URLs follow your site’s Content Security Policy.
+              </p>
+              {customCssError && (
+                <p
+                  id="popcase-custom-css-error"
+                  role="alert"
+                  className="mt-3 text-sm leading-5 text-kumo-danger"
+                >
+                  {customCssError} No settings were saved. Your changes are preserved.
+                </p>
+              )}
+            </div>
+          </details>
           <div className="flex flex-wrap items-center justify-between gap-3 text-sm leading-5">
             <p role="status" className="text-kumo-subtle">
               {saved

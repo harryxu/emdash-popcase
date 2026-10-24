@@ -13,9 +13,11 @@ export type SettingsResponse =
       thumbnails: boolean;
       videoAutoplay: boolean;
       photoInformation: boolean;
+      customCss: string;
       collections: { slug: string; label: string }[];
     }
-  | { ok: false; error: "INVALID_SETTINGS" | "UNKNOWN_CONTENT_TYPE" };
+  | { ok: false; error: "INVALID_SETTINGS" | "UNKNOWN_CONTENT_TYPE" }
+  | { ok: false; error: "INVALID_CUSTOM_CSS"; message: string };
 
 export interface ImageMetadata extends MediaNode {
   source?: string;

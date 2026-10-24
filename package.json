@@ -60,6 +60,7 @@
     "exifreader": "^4.51.0",
     "linkedom": "^0.18.13",
     "lucide-react": "^1.61.0",
+    "postcss": "^8.5.31",
     "yet-another-react-lightbox": "^3.32.2"
   },
   "peerDependencies": {

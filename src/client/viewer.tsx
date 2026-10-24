@@ -18,10 +18,12 @@ import exifStyles from "../exif/exif.css?url";
 import { readPhotoInformation } from "./photo-information.js";
 import type { OpenRequest } from "./group";
 import { YoutubeSlide, YoutubeThumbnail } from "./youtube";
+import { mountCustomCss } from "./custom-css.js";
 
 let root: Root | undefined;
 let host: HTMLDialogElement | undefined;
 let stylesReady: Promise<unknown> | undefined;
+let customStyle: HTMLStyleElement | undefined;
 
 export function prepareViewer() {
   const existing = document.querySelectorAll("link[data-popcase-style]");
@@ -142,6 +144,8 @@ function Viewer({ request, restoreFocus }: { request: OpenRequest; restoreFocus:
 }
 
 export function disposeViewer() {
+  customStyle?.remove();
+  customStyle = undefined;
   host?.querySelectorAll("video").forEach((video) => video.pause());
   root?.unmount();
   host?.close();
@@ -206,6 +210,7 @@ export function openViewer(request: OpenRequest) {
   });
   document.body.appendChild(host);
   host.showModal();
+  customStyle = mountCustomCss(document);
   root = createRoot(host);
   root.render(<Viewer request={request} restoreFocus={restoreFocus} />);
 }

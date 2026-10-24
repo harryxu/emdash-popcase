@@ -21,6 +21,7 @@
     "src/index.ts",
     "src/middleware.ts",
     "src/exif/index.tsx",
+    "src/client/custom-css.ts",
     "src/client/photo-information.ts"
   ]
 }

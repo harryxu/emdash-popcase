@@ -26,6 +26,15 @@ Use the terminology in [GLOSSARY.md](../../GLOSSARY.md). Distribution and image-
 
 ## Content scope
 
+### Custom viewer CSS (2026-10-24)
+
+Add an initially collapsed `Advanced` admin section containing `Custom CSS`.
+Save the default-empty text atomically with existing settings. Its complete
+source is nested under the viewer root and inserted after the default CSS only
+while the lightbox is open. This is trusted administrator customization, not
+strict selector isolation; see [the feature specification](../popcase-custom-css/spec.md)
+and [ADR-0007](../../docs/adr/0007-treat-custom-viewer-css-as-trusted-administrator-code.md).
+
 ### YouTube links (2026-10-23)
 
 Extend the direct-video scope below to ordinary text/image links for single YouTube videos: exact `youtube.com`, `www.youtube.com`, or `m.youtube.com` hosts with `/watch?v=VIDEO_ID` or `/shorts/VIDEO_ID`, and `youtu.be/VIDEO_ID`. Validate video IDs; do not classify lookalike hosts, credential-bearing URLs, playlists without a video, channel/live entry points, `/live/` or `/embed/` URLs. Existing iframes remain unchanged. Detection uses the entire eligible completed page, including header/footer, retaining download and editing exclusions. No additional setting or editor markup is required. This supersedes the YouTube portion of the video-site exclusion below; see [ADR-0005](../../docs/adr/0005-open-youtube-links-with-on-demand-embeds.md).

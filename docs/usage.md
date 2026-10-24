@@ -51,6 +51,50 @@ The former `collections` factory option has been removed. Sites without saved ad
 
 For cached or prerendered pages, invalidate the cache or rebuild after changing settings.
 
+### Advanced: Custom CSS
+
+Expand "Advanced" to enter custom CSS in a multiline field, then click "Save".
+The section starts collapsed on each visit. Clear the field and save to remove
+your overrides. Custom CSS saves atomically with the other settings; structural
+syntax errors prevent the entire save and preserve your draft. Popcase does not
+impose a custom CSS size limit.
+
+Popcase wraps your entire input in `.popcase-dialog[data-popcase-root] { ... }`.
+Use ordinary selectors for viewer contents, `&` for the dialog itself, and
+`&::backdrop` for its native backdrop. For example:
+
+```css
+.popcase-viewer {
+  --yarl__color_backdrop: rgb(0 0 0 / 85%);
+}
+
+.yarl__toolbar {
+  padding: 20px;
+}
+
+@media (width < 600px) {
+  .yarl__toolbar {
+    padding: 8px;
+  }
+}
+```
+
+The stylesheet is added after all default viewer styles when the lightbox opens
+and removed when it closes or the page changes. Before opening, CSS is present
+only as encoded inert configuration; there is no custom stylesheet or resource
+loading from it. Normal CSS specificity and `!important` still apply.
+
+Only add CSS you trust. Native nesting is a convention, not a security boundary:
+advanced selectors such as `& + *` can affect other parts of the page. No feature
+allowlist is enforced, but rules must be valid in a native nested context for the
+browser to apply them. Popcase checks syntax structure, not every selector,
+property, or browser-specific feature. Unsupported rules are handled by the
+browser; Popcase does not compile Sass or lift nested at-rules to the top level.
+External `url()` resources are allowed and subject to the host's Content Security
+Policy. Dynamic custom styles also require a CSP that permits their inline style
+element; Popcase does not change the site's policy. Relative resource URLs
+resolve against the content page's base URL.
+
 ## Using a different image in the viewer
 
 By default, an image opens its own source. To use a separate preview, set the preview image's "Link URL" to the viewer image's public URL.
