@@ -177,7 +177,7 @@ export async function readPhotoInformation(
     if (!format) return { status: "unsupported" };
     if (!completeContainer(bytes, format)) return { status: "error", reason: "parse" };
     parsing = true;
-    const { default: parser } = await import("exifreader");
+    const parser = await import("../../dist/vendor/exifreader/exif-reader.js");
     controller.signal.throwIfAborted();
     try {
       const tags = parser.load(bytes, {

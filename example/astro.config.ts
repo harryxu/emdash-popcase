@@ -12,6 +12,8 @@ export default defineConfig({
     react(),
     popcaseIntegration(),
     emdash({
+      // Keep fixture builds independent of external font downloads.
+      fonts: false,
       plugins: [popcase()],
       database: sqlite({ url: "file:./data.db" }),
       storage: local({ directory: "./uploads", baseUrl: "/_emdash/api/media/file" }),

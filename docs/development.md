@@ -5,7 +5,7 @@ Use Node.js 24+ and pnpm 12 with the self-contained `example/` site.
 ```sh
 pnpm install
 pnpm format         # Format source and documentation
-pnpm build          # Compile server code and generate declarations
+pnpm build          # Prepare the bundled parser, compile code, and generate declarations
 pnpm build:example  # Build the example site
 pnpm test
 pnpm typecheck
@@ -13,7 +13,9 @@ pnpm dev
 pnpm test:package
 ```
 
-`pnpm test:package` installs the tarball in a temporary consumer, checks public types, builds it, and verifies rendered output over HTTP; CI also runs tests and type checks.
+`pnpm test:package` installs the tarball in a temporary consumer with strict dependency-build checks and no ExifReader approval, checks public types, reads synthetic photo metadata with the packaged parser, builds the site, and verifies rendered output over HTTP; CI also runs tests and type checks.
+
+ExifReader is a pinned development dependency. The build copies its unmodified ES module source, declarations, and MPL-2.0 license into `dist/vendor/exifreader/`, so consumers do not install its optional custom-build script. Run the behavioral and packed-consumer checks when updating the parser version.
 
 Use `?case=video` or `?case=youtube` for video examples, and `?case=nojs` or `?case=fail` for fallback checks; the failed-module case requires a production build.
 

@@ -8,7 +8,7 @@ Requires EmDash 1.3.1+, Astro 7, React, React DOM, and `@astrojs/react`.
 pnpm add emdash-popcase
 ```
 
-Popcase uses ExifReader's shipped parser. Its optional custom-build script is unnecessary; pnpm projects that require an explicit build-script decision can set `exifreader: false` under `allowBuilds` in `pnpm-workspace.yaml`.
+Popcase includes ExifReader's unmodified ES module source and license in its published package. It does not install ExifReader as a runtime dependency or require an ExifReader build-script approval in the host project. The parser loads only when a reader expands photo information.
 
 Add the configuration below to `astro.config.mjs` (or `astro.config.ts`) in your EmDash site's root directory, next to `package.json`. Keep your existing settings and plugins, and register `react()` only once.
 

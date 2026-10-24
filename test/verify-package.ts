@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawn, type ChildProcess } from "node:child_process";
-import { copyFile, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { copyFile, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { setTimeout } from "node:timers/promises";
 import { prepareHost } from "./prepare-host.ts";
 
@@ -35,6 +35,10 @@ try {
     "dist/exif/index.js",
     "dist/exif/index.d.ts",
     "src/exif/exif.css",
+    "dist/vendor/exifreader/exif-reader.js",
+    "dist/vendor/exifreader/exif-reader.d.ts",
+    "dist/vendor/exifreader/LICENSE",
+    "dist/vendor/exifreader/NOTICE",
   ]) {
     assert.ok(files.includes(required), `Missing package file: ${required}`);
   }
@@ -49,6 +53,21 @@ try {
   );
   target = await prepareHost(join(packed, archive.filename));
   execFileSync("pnpm", ["install", "--no-frozen-lockfile"], { cwd: target, stdio: "inherit" });
+  const consumerLockfile = await readFile(join(target, "pnpm-lock.yaml"), "utf8");
+  assert.ok(
+    !consumerLockfile.includes("exifreader@"),
+    "The consumer must not install ExifReader or need a build-script decision for it.",
+  );
+  const { readPhotoInformation } = await import(
+    pathToFileURL(join(target, "node_modules/emdash-popcase/dist/client/photo-information.js")).href
+  );
+  const photo = await readFile(join(target, "public/__popcase-images/photo.jpg"));
+  const information = await readPhotoInformation(
+    { src: "https://media.example/photo.jpg" },
+    { signal: new AbortController().signal },
+    { fetch: async () => new Response(Uint8Array.from(photo)) },
+  );
+  assert.equal(information.status, "ready", "The packed parser must read real photo metadata.");
   await copyFile(new URL("./package-types.ts", import.meta.url), join(target, "popcase-types.ts"));
   await writeFile(
     join(target, "tsconfig.package.json"),

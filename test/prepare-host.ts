@@ -17,7 +17,12 @@ export async function prepareHost(tarball: string | undefined) {
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
   manifest.dependencies["emdash-popcase"] = `file:${resolve(tarball)}`;
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-  await cp(new URL("../pnpm-workspace.yaml", import.meta.url), join(target, "pnpm-workspace.yaml"));
+  await writeFile(
+    join(target, "pnpm-workspace.yaml"),
+    "strictDepBuilds: true\nallowBuilds:\n  esbuild: true\n  sharp: true\n  workerd: false\n" +
+      'minimumReleaseAge: 1440\nminimumReleaseAgeExclude:\n  - emdash\n  - "@emdash-cms/*"\n' +
+      "blockExoticSubdeps: true\n",
+  );
   return target;
 }
 
