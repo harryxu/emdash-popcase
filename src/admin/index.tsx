@@ -1,6 +1,6 @@
 import { Button, Checkbox, Loader, Switch } from "@cloudflare/kumo";
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
-import { Check, ChevronDown, Save } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Save } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -23,6 +23,7 @@ export function SettingsPage() {
   const [customCss, setCustomCss] = useState("");
   const [customCssError, setCustomCssError] = useState<string>();
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const AdvancedChevron = advancedOpen ? ChevronUp : ChevronDown;
   const customCssInput = useRef<HTMLTextAreaElement>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -268,17 +269,13 @@ export function SettingsPage() {
             />
           </SettingsSection>
           <details
-            className="group min-w-0"
+            className="min-w-0"
             open={advancedOpen}
             onToggle={(event) => setAdvancedOpen(event.currentTarget.open)}
           >
             <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-sm text-lg font-semibold leading-6 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current [&::-webkit-details-marker]:hidden">
               Advanced
-              <ChevronDown
-                size={20}
-                className="shrink-0 group-open:rotate-180"
-                aria-hidden="true"
-              />
+              <AdvancedChevron size={20} className="shrink-0" aria-hidden="true" />
             </summary>
             <div className="mt-3 rounded-xl border border-kumo-line bg-kumo-base px-4 py-4">
               <label htmlFor="popcase-custom-css" className="text-sm font-medium">
